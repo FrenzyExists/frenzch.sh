@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Frenzy's personal fetch (querido Neofetch, vete pal' carajo)
 
@@ -51,44 +51,70 @@ Options:
 fetch_idk() {
     col=$(stty size | awk '{print $2}')
     row=$(stty size | awk '{print $1}')
-#    if [[ "$row" >= 34 ]] && [[ "$col" >= 142 ]] ; then
-#        big_fetch
-#    fi
-    big_fetch
+    if (( "$row" >= 34 )) && (( "$col" >= 142 )) ; then
+        big_fetch
+    else
+        echo "Yo! Make the terminal window larger!"
+    fi
 
 }
 
-big_fetch() {
+info_shit() {
+    for os in /etc/os-release /usr/lib/os-release; do
+        [ -f $os ] && . $os && break
+    done
+    os=$( echo ${PRETTY_NAME})
+    read -r _ _ version _ < /proc/version
 
-#while IFS='=' read -r k v; do case $k in
-#    PRETTY_NAME) printf '%s\n' "${v//\"}"; break
-#esac; done < /etc/os-release
-#os=$( echo ${PRETTY_NAME} | tr '[:upper:]' '[:lower:]')
-#device_name=$(echo /sys/devices/virtual/dmi/id/product_name | tr '[:upper:]' '[:lower:]' | | sed 's/[0-9]*//g')
+    sh=$(basename $SHELL)
 
+    if [[ "$OSTYPE" == "linux-gnu"* ]] ; then
+        wm=$(echo $XDG_SESSION_DESKTOP)
+    elif [[ "$OSTYPE" == "darwin"* ]] ; then 
+        if (( $(pgrep -lfc yabai) != 0 )) || (( $(pgrep -lfc amehtsysty) != 0 )) || (( $(pgrep -lfc spectacle) != 0 )); then
+            wm="yabai"
+        fi
+    fi
+    us="$USER"
 
-for os in /etc/os-release /usr/lib/os-release; do
-    [ -f $os ] && . $os && break
+    device_name=$(echo $(cat /sys/devices/virtual/dmi/id/product_name | tr '[:upper:]' '[:lower:]'))
+
+    editor=$(basename $EDITOR)
+
+    ram_mem="$(free -h | awk 'NR == 2 {printf("%s", $2)}' | tr '[:upper:]' '[:lower:]' | sed 's/[a-z]*//g') gb"
+
+    res="$(xdpyinfo | awk '/dimensions:/ {printf("%s", $2)}')"
+    
+    ## declare an array variable
+declare -a arr=("element1" "element2" "element3")
+
+## now loop through the above array
+for i in "${arr[@]}"
+do
+   echo "$i"
+   # or do whatever with individual element of the array
 done
-os=$( echo ${PRETTY_NAME})
-read -r _ _ version _ < /proc/version
-kr=${version%%-*}
 
-pa=$(pacman -Q | wc -l)
 
-sh=$(basename $SHELL)
 
-wm=$(echo $XDG_SESSION_DESKTOP)
 
-us="$USER"
+    bar_list=("polybar","wibar","tint2","lemonbar","eww")
 
-device_name=$(echo $(cat /sys/devices/virtual/dmi/id/product_name | tr '[:upper:]' '[:lower:]'))
 
-editor=$(basename $EDITOR)
 
-ram_mem="$(free -h | awk 'NR == 2 {printf("%s", $2)}' | tr '[:upper:]' '[:lower:]' | sed 's/[a-z]*//g') gb"
+    for b in "$bar_list[@]" ; do
+        echo "REEEEEEEEEEEE"
+        if [[ "$(pgrep -lfc "$b")" == "1" ]] ; then
+            echo "REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+        fi
+    done
+    echo $bar
 
-res="$(xdpyinfo | awk '/dimensions:/ {printf("%s", $2)}')"
+}
+
+
+big_fetch() {
+    info_shit
 
 printf "${black}+------------------------------------${magenta}×${black}------------------------------------------------------------------------------------------------------+${reset}\n"
 printf "${black}|${reset}                                    ${magenta}|${reset}                                                                                                      ${black}|\n"
@@ -140,3 +166,9 @@ while test $# -gt 0 ; do
     esac
 done
 
+
+# TODO
+# Make medium fetch
+# Make small fetch
+# Fix the shit done in big fetch
+# Make the options shown more dinamic and stop hardcoding shit you fucking lazybones
