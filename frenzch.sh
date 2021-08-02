@@ -85,30 +85,16 @@ info_shit() {
 
     res="$(xdpyinfo | awk '/dimensions:/ {printf("%s", $2)}')"
     
-    ## declare an array variable
-declare -a arr=("element1" "element2" "element3")
-
-## now loop through the above array
-for i in "${arr[@]}"
-do
-   echo "$i"
-   # or do whatever with individual element of the array
-done
-
-
-
-
-    bar_list=("polybar","wibar","tint2","lemonbar","eww")
-
-
-
-    for b in "$bar_list[@]" ; do
-        echo "REEEEEEEEEEEE"
-        if [[ "$(pgrep -lfc "$b")" == "1" ]] ; then
-            echo "REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+    # add more if you know some other bar or something idkf
+    declare -a bar_list=("polybar" "tint2" "lemonbar" "eww")
+    
+    for b in "${bar_list[@]}" ; do
+       if (( $(pgrep -lfc "$b") != 0 )) ; then
+           bar="$b"
+           break
         fi
     done
-    echo $bar
+
 
 }
 
@@ -132,7 +118,7 @@ printf "${black}|${reset}     ${red}| ${green}|${cyan}|-   <   -|${green}| ${red
 printf "${black}|${reset}     ${red}| ${green}|${cyan} \    \  / | ${red}|${reset}       ${magenta}_${yellow}|${magenta}__${reset}      ${yellow}|######|${reset}                                                            | |   ${blue}${italic}blue${reset}   | ${blue_bg}  ${italic}blue  ${reset} | |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan}[\`\'-...-\'\`]| ${red}|${reset}      ${magenta}|....|${reset}     ${yellow}|######|${reset}                    ${magenta}∆${reset} Software ${yellow}»»»»»»»${blue}»»»»»»${green}»»»»»» ${magenta}∆${reset}        | +----------+----------+ |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan} ;-.___.-; ${green}| ${red}|${reset}     ${green}__${magenta}\__/${green}_______${yellow}:${green}____${yellow}:${green}__${reset}                   ${red}♥${reset} w. manager ............. ${wm}        | |   ${magenta}${italic}pink${reset}   | ${magenta_bg}  ${italic}pink  ${reset} | |     ${black}|\n"
-printf "${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}     ${green}°___________________°${reset}                   ${yellow}♥${reset} panel ..........${cyan}o${reset}..... polybar        | +----------+----------+ |     ${black}|\n"
+printf "${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}     ${green}°___________________°${reset}                   ${yellow}♥${reset} panel ..........${cyan}o${reset}..... ${bar}        | +----------+----------+ |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}        ${green} \\\\\ ${reset}        ${green} // ${reset}                     ${green}♥${reset} editor ....${cyan}o${reset}...${cyan}/​${reset}......... ${editor}        | |   ${cyan}${italic}cyan${reset}   | ${cyan_bg}  ${italic}cyan  ${reset} | |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}                                                           ${cyan}\ /​${reset}                       | +----------+----------+ |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan} | ${yellow}_|||_ ${cyan}| ${green}| ${red}|${reset}           ${cyan}˛-˛${reset}                                 ${yellow}+------------${cyan}v${yellow}-----------+${reset}            \_________________________/     ${black}|\n"
