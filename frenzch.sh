@@ -4,9 +4,9 @@
 
 
 # DISCLAIMER
-# Don't try this at home, don't show it to children, don't show it your co-workers, 
-# don't show it to #bash at Freenode, don't show it to members of the POSIX committee, 
-# don't show it to Mr. Bourne, maybe show it to father McCarthy's ghost to give him a 
+# Don't try this at home, don't show it to children, don't show it your co-workers,
+# don't show it to #bash at Freenode, don't show it to members of the POSIX committee,
+# don't show it to Mr. Bourne, maybe show it to father McCarthy's ghost to give him a
 # laugh. You have been warned, and you never found this in my repo.
 
 # CONSTANTS OR SOMETHING IDFK
@@ -69,8 +69,20 @@ info_shit() {
     sh=$(basename $SHELL)
     os_type="${OSTYPE//[0-9.]/}"
     if [[ "$os_type" == "linux-gnu"* ]] ; then
-        wm=$(echo $XDG_SESSION_DESKTOP)
-    elif [[ "$os_type" == "darwin"* ]] ; then 
+	if [ "$XDG_SESSION_DESKTOP" ]; then
+		wm=$XDG_SESSION_DESKTOP
+	elif [ "$XDG_CURRENT_DESKTOP" ]; then
+		wm=$XDG_CURRENT_DESKTOP
+	else
+		# taken from neofetch
+       		id=$(xprop -root -notype _NET_SUPPORTING_WM_CHECK)
+       		id=${id##* }
+       		wm=$(xprop -id "$id" -notype -len 100 -f _NET_WM_NAME 8t)
+       		wm=${wm/*WM_NAME = }
+       		wm=${wm/\"}
+       		wm=${wm/\"*}
+	fi
+    elif [[ "$os_type" == "darwin"* ]] ; then
         if (( $(pgrep -lfc yabai) != 0 )) || (( $(pgrep -lfc amehtsysty) != 0 )) || (( $(pgrep -lfc spectacle) != 0 )); then
             wm="yabai"
         fi
@@ -83,10 +95,10 @@ info_shit() {
     ram_mem="$(free -h | awk 'NR == 2 {printf("%s", $2)}' | tr '[:upper:]' '[:lower:]' | sed 's/[a-z]*//g') gb"
 
     res="$(xdpyinfo | awk '/dimensions:/ {printf("%s", $2)}')"
-    
+
     # add more if you know some other bar or something idkf
-    declare -a bar_list=("polybar" "tint2" "lemonbar" "eww")
-    
+    declare -a bar_list=("polybar" "tint2" "lemonbar" "eww" "xmobar")
+
     for b in "${bar_list[@]}" ; do
        if (( $(pgrep -lfc "$b") != 0 )) ; then
            bar="$b"
@@ -130,7 +142,7 @@ printf "${black}|${reset}     ${red}| ${green}|${cyan}|-   <   -|${green}| ${red
 printf "${black}|${reset}     ${red}| ${green}|${cyan} \    \  / | ${red}|${reset}       ${magenta}_${yellow}|${magenta}__${reset}      ${yellow}|######|${reset}                                                            | |   ${blue}${italic}blue${reset}   | ${blue_bg}  ${italic}blue  ${reset} | |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan}[\`\'-...-\'\`]| ${red}|${reset}      ${magenta}|....|${reset}     ${yellow}|######|${reset}                    ${magenta}∆${reset} Software ${yellow}»»»»»»»${blue}»»»»»»${green}»»»»»» ${magenta}∆${reset}        | +----------+----------+ |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan} ;-.___.-; ${green}| ${red}|${reset}     ${green}__${magenta}\__/${green}_______${yellow}:${green}____${yellow}:${green}__${reset}                   ${red}♥${reset} ${wm_str}        | |   ${magenta}${italic}pink${reset}   | ${magenta_bg}  ${italic}pink  ${reset} | |     ${black}|\n"
-printf "${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}     ${green}°___________________°${reset}                   ${yellow}♥${reset} panel ..........${cyan}o${reset}..... ${bar}        | +----------+----------+ |     ${black}|\n"
+printf "${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}     ${green}°___________________°${reset}                   ${yellow}♥${reset} panel ..........${cyan}o${reset}...... ${bar}        | +----------+----------+ |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}        ${green} \\\\\ ${reset}        ${green} // ${reset}                     ${green}♥${reset} editor ....${cyan}o${reset}...${cyan}/​${reset}......... ${editor}        | |   ${cyan}${italic}cyan${reset}   | ${cyan_bg}  ${italic}cyan  ${reset} | |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}                                                           ${cyan}\ /​${reset}                       | +----------+----------+ |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan} | ${yellow}_|||_ ${cyan}| ${green}| ${red}|${reset}           ${cyan}˛-˛${reset}                                 ${yellow}+------------${cyan}v${yellow}-----------+${reset}            \_________________________/     ${black}|\n"
