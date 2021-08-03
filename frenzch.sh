@@ -67,10 +67,10 @@ info_shit() {
     read -r _ _ version _ < /proc/version
 
     sh=$(basename $SHELL)
-
-    if [[ "$OSTYPE" == "linux-gnu"* ]] ; then
+    os_type="${OSTYPE//[0-9.]/}"
+    if [[ "$os_type" == "linux-gnu"* ]] ; then
         wm=$(echo $XDG_SESSION_DESKTOP)
-    elif [[ "$OSTYPE" == "darwin"* ]] ; then 
+    elif [[ "$os_type" == "darwin"* ]] ; then 
         if (( $(pgrep -lfc yabai) != 0 )) || (( $(pgrep -lfc amehtsysty) != 0 )) || (( $(pgrep -lfc spectacle) != 0 )); then
             wm="yabai"
         fi
@@ -78,7 +78,6 @@ info_shit() {
     us="$USER"
 
     device_name=$(echo $(cat /sys/devices/virtual/dmi/id/product_name | tr '[:upper:]' '[:lower:]'))
-
     editor=$(basename $EDITOR)
 
     ram_mem="$(free -h | awk 'NR == 2 {printf("%s", $2)}' | tr '[:upper:]' '[:lower:]' | sed 's/[a-z]*//g') gb"
@@ -94,13 +93,26 @@ info_shit() {
            break
         fi
     done
-
-
 }
 
 
 big_fetch() {
     info_shit
+
+# The size of the each fetch itself is 32 characters long, since I'm a newb on this that's the size hardcoded
+# I'll change this part, trust me
+
+size=$(( 32 - $(echo $ram_mem | wc -m) - $(echo "ram" | wc -m) - 2))
+ram_str=$(echo "ram" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$ram_mem" )
+
+size=$(( 32 - $(echo $device_name | wc -m) - $(echo "laptop" | wc -m) - 2))
+dev_str=$(echo "laptop" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$device_name" )
+
+size=$(( 32 - $(echo $res    | wc -m) - $(echo "display" | wc -m) - 2))
+res_str=$(echo "display" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$res" )
+
+size=$(( 32 - $(echo $wm | wc -m) - $(echo "w. manager" | wc -m) - 2))
+wm_str=$(echo "w. manager" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$wm" )
 
 printf "${black}+------------------------------------${magenta}×${black}------------------------------------------------------------------------------------------------------+${reset}\n"
 printf "${black}|${reset}                                    ${magenta}|${reset}                                                                                                      ${black}|\n"
@@ -109,15 +121,15 @@ printf "${black}|${reset}            ${red}(_)${reset}                     ${mag
 printf "${black}|${reset}          ${red}_ )_( _${reset}                   ${magenta}A${reset}                                                                       _________________________      ${black}|\n"
 printf "${black}|${reset}        ${red}/\`_) H (_\`\  ${reset}              ${yellow}/|\                                                                     ${reset}/                         \     ${black}|\n"
 printf "${black}|${reset}      ${red}.\' (  { }  ) \'.${reset}             ${yellow}/-|-\                                                                    ${reset}| +----------+----------+ |     ${black}|\n"
-printf "${black}|${reset}    ${red}_/ /\` '-'='-' \`\ \_${reset}           ${yellow}\_|_/                                 ${reset}$us       ${os}              | |   ${red}redy${reset}   | ${red_bg}  redy  ${reset} | |     ${black}|\n"
+printf "${black}|${reset}    ${red}_/ /\` '-'='-' \`\ \_${reset}           ${yellow}\_|_/                                 ${reset}$us       ${os}              | |   ${red}${italic}redy${reset}   | ${red_bg}  ${italic}redy  ${reset} | |     ${black}|\n"
 printf "${black}|${reset}   ${red}[_.'  ${yellow}I am old   ${red}'._]${reset}                                                                                   | +----------+----------+ |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}.-----------.${reset} ${red}|${reset}       ${green}o${reset}  ${green}o${reset}                                  ${magenta}∆${reset} Hardware ${yellow}»»»»»»»${blue}»»»»»»${green}»»»»»» ${magenta}∆${reset}        | |  ${yellow}${italic}yellow${reset}  | ${yellow_bg} ${italic}yellow ${reset} | |     ${black}|\n"
-printf "${black}|${reset}     ${red}| ${green}|${cyan}  .-\"\"\"-.  ${green}| ${red}|${reset}       ${green}o${yellow}\/${green}o o${reset}          ${blue}.${reset}                     ${red}♥${reset} laptop ........... ${device_name}        | +----------+----------+ |     ${black}|\n"
-printf "${black}|${reset}     ${red}| ${green}|${cyan} /    /  \ ${green}| ${red}|${reset}      ${green}oo${yellow}|/o${reset}            ${blue}|${reset}                     ${yellow}♥${reset} ram ................... ${ram_mem}        | |  ${green}${italic}greeny${reset}  | ${green_bg} ${italic}greeny ${reset} | |     ${black}|\n"
-printf "${black}|${reset}     ${red}| ${green}|${cyan}|-   <   -|${green}| ${red}|${reset}      ${yellow} \|${green}o${reset}        ${yellow}_____${blue}|${reset}                     ${green}♥${reset} display ............ $res        | +----------+----------+ |     ${black}|\n"
+printf "${black}|${reset}     ${red}| ${green}|${cyan}  .-\"\"\"-.  ${green}| ${red}|${reset}       ${green}o${yellow}\/${green}o o${reset}          ${blue}.${reset}                     ${red}♥${reset} ${dev_str}        | +----------+----------+ |     ${black}|\n"
+printf "${black}|${reset}     ${red}| ${green}|${cyan} /    /  \ ${green}| ${red}|${reset}      ${green}oo${yellow}|/o${reset}            ${blue}|${reset}                     ${yellow}♥${reset} ${ram_str}        | |  ${green}${italic}greeny${reset}  | ${green_bg} ${italic}greeny ${reset} | |     ${black}|\n"
+printf "${black}|${reset}     ${red}| ${green}|${cyan}|-   <   -|${green}| ${red}|${reset}      ${yellow} \|${green}o${reset}        ${yellow}_____${blue}|${reset}                     ${green}♥${reset} ${res_str}        | +----------+----------+ |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan} \    \  / | ${red}|${reset}       ${magenta}_${yellow}|${magenta}__${reset}      ${yellow}|######|${reset}                                                            | |   ${blue}${italic}blue${reset}   | ${blue_bg}  ${italic}blue  ${reset} | |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan}[\`\'-...-\'\`]| ${red}|${reset}      ${magenta}|....|${reset}     ${yellow}|######|${reset}                    ${magenta}∆${reset} Software ${yellow}»»»»»»»${blue}»»»»»»${green}»»»»»» ${magenta}∆${reset}        | +----------+----------+ |     ${black}|\n"
-printf "${black}|${reset}     ${red}| ${green}|${cyan} ;-.___.-; ${green}| ${red}|${reset}     ${green}__${magenta}\__/${green}_______${yellow}:${green}____${yellow}:${green}__${reset}                   ${red}♥${reset} w. manager ............. ${wm}        | |   ${magenta}${italic}pink${reset}   | ${magenta_bg}  ${italic}pink  ${reset} | |     ${black}|\n"
+printf "${black}|${reset}     ${red}| ${green}|${cyan} ;-.___.-; ${green}| ${red}|${reset}     ${green}__${magenta}\__/${green}_______${yellow}:${green}____${yellow}:${green}__${reset}                   ${red}♥${reset} ${wm_str}        | |   ${magenta}${italic}pink${reset}   | ${magenta_bg}  ${italic}pink  ${reset} | |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}     ${green}°___________________°${reset}                   ${yellow}♥${reset} panel ..........${cyan}o${reset}..... ${bar}        | +----------+----------+ |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}        ${green} \\\\\ ${reset}        ${green} // ${reset}                     ${green}♥${reset} editor ....${cyan}o${reset}...${cyan}/​${reset}......... ${editor}        | |   ${cyan}${italic}cyan${reset}   | ${cyan_bg}  ${italic}cyan  ${reset} | |     ${black}|\n"
 printf "${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}                                                           ${cyan}\ /​${reset}                       | +----------+----------+ |     ${black}|\n"
