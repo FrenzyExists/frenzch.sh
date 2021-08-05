@@ -94,7 +94,7 @@ info_shit() {
                 : "${editor_boi:=$(command -v nvim)}" "${editor_boi:=$(command -v vim)}" "${editor_boi:=$(command -v emacs)}" "${editor_boi:=$(command -v vim)}"
                 editor=$(basename $editor_boi)
         else
-                editor=$EDITOR
+            editor=$(basename $EDITOR)
         fi
 
         ram_mem="$(free -h | awk 'NR == 2 {printf("%s", $2)}' | tr '[:upper:]' '[:lower:]' | sed 's/[a-z]*//g') gb"
