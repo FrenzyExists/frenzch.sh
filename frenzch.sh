@@ -89,7 +89,14 @@ info_shit() {
     us="$USER"
 
     device_name=$(echo $(cat /sys/devices/virtual/dmi/id/product_name | tr '[:upper:]' '[:lower:]'))
-    editor=$(basename $EDITOR)
+    
+    # In case the $EDITOR variable is empty, posix attempt
+    if [[ "$(basename $EDITOR)" == "" ]] ; then
+        : "${editor_boi:=$(command -v nvim)}" "${editor_boi:=$(command -v vim)}" "${editor_boi:=$(command -v emacs)}" "${editor_boi:=$(command -v vim)}"
+        editor=$(basename $editor_boi)
+    else 
+        editor=$(basename $EDITOR)
+    fi
 
     ram_mem="$(free -h | awk 'NR == 2 {printf("%s", $2)}' | tr '[:upper:]' '[:lower:]' | sed 's/[a-z]*//g') gb"
 
@@ -106,6 +113,10 @@ info_shit() {
     done
 }
 
+medium_fetch() {
+
+
+}
 
 big_fetch() {
     info_shit
