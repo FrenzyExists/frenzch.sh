@@ -65,7 +65,7 @@ info_shit() {
         #sh=$(basename "$SHELL")
         OS=$(uname -s)
         case "$OS" in
-                "Linux")
+                "Linux"|"GNU"*)
                         if [ "$XDG_SESSION_DESKTOP" ]; then
                                 wm=$XDG_SESSION_DESKTOP
                         elif [ "$XDG_CURRENT_DESKTOP" ]; then
@@ -84,9 +84,14 @@ info_shit() {
                                 wm="yabai"
                         fi
                         ;;
+                "CYGWIN"*|"MSYS"*|"MINGW"*)
+                        OS="windows"
+                        wm="explorer"
+                        break
+                        ;;
                 "*") printf "Not Supported/n" ;;
         esac
-        us="$USER"
+        us="$(who | awk '!seen[$1]++ {printf $1}')"
 
         device_name=$(tr '[:upper:]' '[:lower:]' </sys/devices/virtual/dmi/id/product_name)
         # In case the $EDITOR variable is empty, posix attempt
@@ -190,6 +195,7 @@ ${black}|${blue} __${red}[__--__--___--__--__]${blue}_____${green}||${blue}_____
 | ${blue}----------------------------------------------------------------------------------------------------------------------------------------- ${black}|
 ${black}+-------------------------------------------------------------------------------------------------------------------------------------------+${reset}\n"
 }
+
 
 if [ -z "$1" ]; then
         fetch_idk
