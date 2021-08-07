@@ -46,23 +46,85 @@ Options:
 }
 
 fetch_idk() {
-        col=$(stty size | cut -d' ' -f2)
-        row=$(stty size | cut -d' ' -f1)
+        read -r row col <<< "$(stty size)"
+
         if [ "$row" -ge 34 ] && [ "$col" -ge 140 ]; then
                 big_fetch
+        
+        elif [ "$row" -ge 32 ] && [ "$col" -ge 80 ] ; then
+                medium_fetch
         else
                 echo "Yo! Make the terminal window larger!"
         fi
+
+        
 }
 
-info_shit() {
-        for os in /etc/os-release /usr/lib/os-release; do
-                [ -f $os ] && . $os && break
-        done
-        os=$(echo "$PRETTY_NAME" | tr '[:upper:]' '[:lower:]')
-        #read -r _ _ version _ </proc/version
+# Load the things you wanna see in the fetch, btw, the limit is 3 in hardware, 3 in software
+# The other way is 6 hardware or 6 software. so, its like having two sections of sorts
+options() {
+    declare -a hardware=("display" "ram" "device" "temperature" "cpu cores" "mem" "gpu")
+    declare -a software=("w. manager" "editor" "panel" "kernel" "terminal" "font" "de" "uptime" "font size")
+}
 
-        #sh=$(basename "$SHELL")
+get_editor() {
+    # In case the $EDITOR variable is empty, posix attempt
+    if [ -z "$EDITOR" ]; then
+        : "${editor_boi:=$(command -v nvim)}" "${editor_boi:=$(command -v vim)}" "${editor_boi:=$(command -v emacs)}" "${editor_boi:=$(command -v vim)}"
+        editor=$(basename $editor_boi)
+    else
+        editor=$(basename "${VISUAL:-$EDITOR}")
+    fi
+}
+
+get_ram() {
+    ram_mem="$(free -h | awk 'NR == 2 {printf("%s", $2)}' | tr '[:upper:]' '[:lower:]' | sed 's/[a-z]*//g') gb"
+}
+
+get_panel() {
+    # add more if you know some other bar or something idkf
+    bar=$(ps -e | grep -m 1 -o \
+            -e " i3bar$" \
+            -e " dzen2$" \
+            -e " tint2$" \
+             -e " xmobar$" \
+            -e " swaybar$" \
+            -e " polybar$" \
+            -e " lemonbar$" \
+            -e " taffybar$")
+
+        bar=${bar# }
+}
+
+get_resolution() {
+    res="$(xrandr --current | grep ' connected' | grep -o '[0-9]\+x[0-9]\+')"
+}
+
+get_kernel() {
+read -r k_ver k_type <<< "$(uname -r | sed 's/-/\ /g')"
+k_type="$(echo $(echo $k_type | sed 's/[0-9]/\ /g') | sed -e 's/\b\([a-z]\+\)[ ,\n]\1/\1/g')"
+}
+
+get_uptime() {
+    IFS=. read -r s _ < /proc/uptime
+
+    # Convert the uptime from seconds into days, hours and minutes.
+    d=$((s / 60 / 60 / 24))
+    h=$((s / 60 / 60 % 24))
+    m=$((s / 60 % 60))
+
+    # Only append days, hours and minutes if they're non-zero.
+    case "$d" in ([!0]*) uptime="${uptime}${d}d "; esac
+    case "$h" in ([!0]*) uptime="${uptime}${h}h "; esac
+    case "$m" in ([!0]*) uptime="${uptime}${m}m "; esac
+
+}
+
+get_device() {
+    device_name=$(tr '[:upper:]' '[:lower:]' </sys/devices/virtual/dmi/id/product_name)
+}
+
+get_wm() {
         OS=$(uname -s)
         case "$OS" in
                 "Linux"|"GNU"*)
@@ -91,39 +153,85 @@ info_shit() {
                         ;;
                 "*") printf "Not Supported/n" ;;
         esac
-        us="$(who | awk '!seen[$1]++ {printf $1}')"
-
-        device_name=$(tr '[:upper:]' '[:lower:]' </sys/devices/virtual/dmi/id/product_name)
-        # In case the $EDITOR variable is empty, posix attempt
-        if [ -z "$EDITOR" ]; then
-                : "${editor_boi:=$(command -v nvim)}" "${editor_boi:=$(command -v vim)}" "${editor_boi:=$(command -v emacs)}" "${editor_boi:=$(command -v vim)}"
-                editor=$(basename $editor_boi)
-        else
-            editor=$(basename $EDITOR)
-        fi
-
-        ram_mem="$(free -h | awk 'NR == 2 {printf("%s", $2)}' | tr '[:upper:]' '[:lower:]' | sed 's/[a-z]*//g') gb"
-
-        res="$(xrandr --current | grep ' connected' | grep -o '[0-9]\+x[0-9]\+')"
-
-        # add more if you know some other bar or something idkf
-        bar=$(ps -e | grep -m 1 -o \
-                -e " i3bar$" \
-                -e " dzen2$" \
-                -e " tint2$" \
-                -e " xmobar$" \
-                -e " swaybar$" \
-                -e " polybar$" \
-                -e " lemonbar$" \
-                -e " taffybar$")
-
-        bar=${bar# }
 }
 
-#medium_fetch() {
-#
-#
-#}
+get_user() {
+    us="$(who | awk '!seen[$1]++ {printf $1}')"
+}
+
+get_os() {
+    for os in /etc/os-release /usr/lib/os-release; do
+        [ -f $os ] && . $os && break
+    done
+    os=$(echo "$PRETTY_NAME" | tr '[:upper:]' '[:lower:]')
+}
+
+term_size() {
+    if type -p xdotool &>/dev/null ; then
+        IFS=$'\n' read -d "" -ra win <<< "$(xdotool getactivewindow getwindowgeometry --shell %1)"
+        term_width="${win[3]/WIDTH=}"
+        term_height="${win[4]/HEIGHT=}"
+
+    elif type -p xwininfo &>/dev/null; then
+        # Get the focused window's ID.
+        if type -p xdo &>/dev/null; then
+            current_window="$(xdo id)"
+
+        elif type -p xprop &>/dev/null; then
+            current_window="$(xprop -root _NET_ACTIVE_WINDOW)"
+            current_window="${current_window##* }"
+        
+        elif type -p xdpyinfo &>/dev/null; then
+            current_window="$(xdpyinfo | grep -F "focus:")"
+            current_window="${current_window/*window }"
+            current_window="${current_window/,*}"
+        fi
+
+        # If the ID was found get the window size.
+        if [[ "$current_window" ]]; then
+            term_size=("$(xwininfo -id "$current_window")")
+            term_width="${term_size[0]#*Width: }"
+            term_width="${term_width/$'\n'*}"
+            term_height="${term_size[0]/*Height: }"
+            term_height="${term_height/$'\n'*}"
+        fi
+    fi
+    term_width="${term_width:-0}"
+    echo $term_height $term_width
+}
+
+info_shit() {
+        # Get pretty name of OS
+        get_os
+        
+        # Get username or somemthing
+        get_user
+
+        # Get Window Manager
+        get_wm
+
+        # Get Editor
+        get_editor
+        
+        # Get panel
+        get_panel
+
+        # Get resolution        
+        get_resolution
+
+        # Get RAM mem
+        get_ram
+
+        # Get device (pc model) name
+        get_device
+}
+
+medium_fetch() {
+    printf '%b' "\
+${black}|    ${green}||${reset}                ${red}‘__${green}||${red}_______’${reset}    ${black}|
+${black}|    ${green}||${reset}                 ${red} /${green}||${reset}     ${red} \  ${black}|
+${black}|${blue}____${green}||${blue}_________________${red}/${blue}_${green}||${blue}_______${red}\​${blue}_____________${black}|\n"
+}
 
 big_fetch() {
         info_shit
@@ -192,8 +300,10 @@ ${black}|${reset}     ${red}| ${green}| ${cyan}'-------'${green} | ${red}|${rese
 ${black}|${reset}    ${red}_| ${green}'-----------'${red} |_${reset}      ${green}||${reset}                ${red}‘__${green}||${red}_______’${reset}         ${yellow}+------------------------+${reset}                                            ${black}|
 ${black}|${reset}   ${red}[= === === ==== == =]${reset}     ${green}||${reset}                 ${red} /${green}||${reset}     ${red} \ ${reset}              ${red}/ ${reset}           ${red} \ ${reset}                                                 ${black}|
 ${black}|${blue} __${red}[__--__--___--__--__]${blue}_____${green}||${blue}_________________${red}/${blue}_${green}||${blue}_______${red}\​${blue}_____________${red}O${blue}_______________${red}O${blue}________________________________________________ ${black}|
-| ${blue}----------------------------------------------------------------------------------------------------------------------------------------- ${black}|
+${black}| ${blue}----------------------------------------------------------------------------------------------------------------------------------------- ${black}|
 ${black}+-------------------------------------------------------------------------------------------------------------------------------------------+${reset}\n"
+
+
 }
 
 
