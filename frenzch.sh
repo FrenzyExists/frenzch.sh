@@ -38,7 +38,7 @@ welcome() {
 ██      ██   ██ ██      ██  ██ ██  ███    ██      ██   ██ 
 ██      ██   ██ ███████ ██   ████ ███████  ██████ ██   ██ 
  
-version 0.1: Carita Buena de Nena                                                         
+version 0.2: Ni Bien Ni Mal
 Options:
     just fire up the damn thing wtf you expect?
 "
@@ -48,16 +48,14 @@ Options:
 fetch_idk() {
         read -r row col <<< "$(stty size)"
 
-        if [ "$row" -ge 34 ] && [ "$col" -ge 140 ]; then
+        if [ "$row" -ge 34 ] && [ "$col" -ge 130 ]; then
                 big_fetch
         
-        elif [ "$row" -ge 32 ] && [ "$col" -ge 80 ] ; then
+        elif [ "$row" -ge 24 ] && [ "$col" -ge 47 ] ; then
                 medium_fetch
         else
-                echo "Yo! Make the terminal window larger!"
+                echo "Please make the terminal window larger!"
         fi
-
-        
 }
 
 # Load the things you wanna see in the fetch, btw, the limit is 3 in hardware, 3 in software
@@ -65,6 +63,7 @@ fetch_idk() {
 options() {
     declare -a hardware=("display" "ram" "device" "temperature" "cpu cores" "mem" "gpu")
     declare -a software=("w. manager" "editor" "panel" "kernel" "terminal" "font" "de" "uptime" "font size")
+    divider=${magenta}∆${reset} Hardware ${yellow}»»»»»»»${blue}»»»»»»${green}»»»»»» ${magenta}∆${reset}
 }
 
 get_editor() {
@@ -227,10 +226,66 @@ info_shit() {
 }
 
 medium_fetch() {
+    info_shit
+
+    # The size of the each fetch itself is 32 characters long, since I'm a newb on this that's the size hardcoded
+
+    # This section is the user with the os name. Originally hardcoded, this is the current dirty way to
+    # center it atm
+
+    left_pad=$((32 - $(echo $us | wc -m) - $(echo $os | wc -m) - 6))
+    center_pad=$((32 - $(echo $us | wc -m) - $(echo $os | wc -m) - 3))
+     right_pad=$((32 - $center_pad - $left_pad))
+
+    # This section is the info with hearts. Currently is hardcoded until there's a way to generalize it
+
+    us_os_str=$(echo $(echo "$us" | sed -e :a -e 's/^.\{1,'"$left_pad"'\}$/⠀&/;ta')$(echo "$os" | sed -e :a -e 's/^.\{1,'"$center_pad"'\}$/⠀&/;ta')$(echo "​" | sed -e :a -e 's/^.\{1,'"$right_pad"'\}$/⠀&/;ta'))
+
+    size=$((32 - $(echo "$ram_mem" | wc -m) - $(echo "ram" | wc -m) - 2))
+    ram_str=$(echo "ram" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$ram_mem")
+
+    size=$((32 - $(echo "$device_name" | wc -m) - $(echo "device" | wc -m) - 2))
+        dev_str=$(echo "device" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$device_name")
+
+    size=$((32 - $(echo "$res" | wc -m) - $(echo "display" | wc -m) - 2))
+    res_str=$(echo "display" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$res")
+
+    size=$((32 - $(echo $wm | wc -m) - $(echo "w. manager" | wc -m) - 2))
+    wm_str=$(echo "w. manager" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$wm")
+
+
+
+    size=$((32 - $(echo $bar | wc -m) - $(echo "panel" | wc -m) - 2)) 
+    bar_str=$(echo "panel" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$bar")
+
+    size=$((32 - $(echo $editor | wc -m) - $(echo "editor" | wc -m) - 2)) 
+    editor_str=$(echo "editor" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$editor") 
+
     printf '%b' "\
-${black}|    ${green}||${reset}                ${red}‘__${green}||${red}_______’${reset}    ${black}|
-${black}|    ${green}||${reset}                 ${red} /${green}||${reset}     ${red} \  ${black}|
-${black}|${blue}____${green}||${blue}_________________${red}/${blue}_${green}||${blue}_______${red}\​${blue}_____________${black}|\n"
+
+${black}+--------------------------------------------+
+${black}|                                            |
+${black}|     ${magenta}∆${reset} Hardware ${yellow}»»»»»»»${blue}»»»»»»${green}»»»»»» ${magenta}∆${reset}       ${black}|
+${black}|     ${red}♥${reset} ${dev_str}       ${black}|
+${black}|     ${yellow}♥${reset} ${ram_str}       ${black}|
+${black}|     ${green}♥${reset} ${res_str}       ${black}|
+${black}|                                            |
+${black}|     ${magenta}∆${reset} Software ${yellow}»»»»»»»${blue}»»»»»»${green}»»»»»» ${magenta}∆${reset}       ${black}|
+${black}|     ${red}♥${reset} ${wm_str}       ${black}|
+${black}|     ${yellow}♥${reset} ${bar_str}       ${black}|
+${black}|     ${green}♥${reset} ${editor_str}       ${black}|
+${black}|                                            |
+${black}|          ${cyan}˛-˛${reset}                               ${black}|
+${black}|         ${cyan}(_._)_${reset}  _     ${magenta}, _${reset}                  ${black}|
+${black}|        ${cyan}/${red}:${cyan}:${red}:${cyan}:${red}:${cyan}:\//${reset}    ${magenta}(| |${reset}           ${red}.|${reset}     ${black}|
+${black}|    ${green}____${cyan}\______/'${green}______${magenta}|_|${green}______${reset}     ${red}||${reset}     ${black}|
+${black}|    ${green}°__________________________°${reset}     ${red}||${reset}     ${black}|
+${black}|      ${green}||${reset}                    ${green}||${reset}       ${red}||${reset}     ${black}|
+${black}|      ${green}||${reset}                    ${green}||${reset}       ${red}||${reset}     ${black}|
+${black}|      ${green}||${reset}                 ${red}___${green}||${red}______.||${reset}     ${black}|
+${black}|      ${green}||${reset}                 ${red}‘__${green}||${red}_______’${reset}      ${black}|
+${black}|      ${green}||${reset}                  ${red} /${green}||${reset}     ${red} \       ${black}|
+${black}|${blue}______${green}||${blue}__________________${red}/${blue}_${green}||${blue}_______${red}\​${blue}______${black}|\n"
 }
 
 big_fetch() {
