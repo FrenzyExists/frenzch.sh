@@ -1,6 +1,7 @@
 # frenzch.sh
 A cozy fetch (currently super buggy)
 
+Frenzch is able to adjust its fetch according to the size of the terminal, at the moment there's at least 2 sizes
 
 ## Full Fetch
 <p align="center">
