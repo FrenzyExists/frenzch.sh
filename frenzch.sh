@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Frenzy's personal fetch
 
@@ -83,16 +83,19 @@ get_ram() {
 get_panel() {
     # add more if you know some other bar or something idkf
     bar=$(ps -e | grep -m 1 -o \
-            -e " i3bar$" \
-            -e " dzen2$" \
-            -e " tint2$" \
-             -e " xmobar$" \
-            -e " swaybar$" \
-            -e " polybar$" \
-            -e " lemonbar$" \
-            -e " taffybar$")
-
+            -e "i3bar$" \
+            -e "dzen2$" \
+            -e "tint2$" \
+            -e "xmobar$" \
+            -e "swaybar$" \
+            -e "polybar$" \
+            -e "lemonbar$" \
+            -e "taffybar$")
         bar=${bar# }
+
+        if [[ "$bar" == ""  ]]; then
+            bar="no bar"
+        fi
 }
 
 get_resolution() {
@@ -285,7 +288,7 @@ ${black}|      ${green}||${reset}                    ${green}||${reset}       ${
 ${black}|      ${green}||${reset}                 ${red}___${green}||${red}______.||${reset}     ${black}|
 ${black}|      ${green}||${reset}                 ${red}‘__${green}||${red}_______’${reset}      ${black}|
 ${black}|      ${green}||${reset}                  ${red} /${green}||${reset}     ${red} \       ${black}|
-${black}|${blue}______${green}||${blue}__________________${red}/${blue}_${green}||${blue}_______${red}\​${blue}______${black}|\n"
+${black}|${blue}______${green}||${blue}__________________${red}/${blue}_${green}||${blue}_______${red}\​${blue}______${black}|${reset}\n"
 }
 
 big_fetch() {
