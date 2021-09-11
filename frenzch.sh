@@ -8,275 +8,258 @@
 # don't show it to Mr. Bourne, maybe show it to father McCarthy's ghost to give him a
 # laugh. You have been warned, and you never found this in my repo.
 
-# CONSTANTS OR SOMETHING IDFK
-red="\033[0;31m"
-yellow="\033[0;33m"
-green="\033[0;32m"
-blue="\033[0;34m"
-magenta="\033[0;35m"
-cyan="\033[0;36m"
-black="\033[0;30m"
-black_2="\033[0;90m"
-reset="\033[0m"
-white="\033[0;97m"
-
-red_bg="\033[0;30;101m"
-green_bg="\033[0;30;102m"
-yellow_bg="\033[0;30;103m"
-blue_bg="\033[0;30;104m"
-magenta_bg="\033[0;30;105m"
-cyan_bg="\033[0;30;106m"
-
-bold="\033[1m"
-italic="\033[3m"
+# Dependancies
+ROOT=$(pwd)
+# shellcheck source=./info.sh
+source "$ROOT/info.sh" # FETCH INFO
+source "$ROOT/constants.sh" # CONSTANTS OR SOMETHING IDFK
+#------------------------------------------------------------#
+# WARNING:                                                   #
+# THIS FOLLOWING SECTION SHOWS THE ROADMAP FOR FRENCH.       #
+# THEREFORE THE FOLLOWING DOC SECTION MAY NOT APPLY TO THIS  #
+# VERSION AS FRENCH IS EARLY ACCESS AND I'M LAZY AF          #
+#------------------------------------------------------------#
 
 welcome() {
-        printf "%s" "\
-███████ ██████  ███████ ███    ██ ███████  ██████ ██   ██ 
-██      ██   ██ ██      ████   ██    ███  ██      ██   ██ 
-█████   ██████  █████   ██ ██  ██   ███   ██      ███████ 
-██      ██   ██ ██      ██  ██ ██  ███    ██      ██   ██ 
-██      ██   ██ ███████ ██   ████ ███████  ██████ ██   ██ 
+        printf "%b" "\
+${yellow}███████ ██████  ███████ ███    ██ ███████  ██████ ██   ██ 
+${yellow}██      ██   ██ ██      ████   ██    ███  ██      ██   ██ 
+${blue}█████   ██████  █████   ██ ██  ██   ███   ██      ███████ 
+${magenta}██      ██   ██ ██      ██  ██ ██  ███    ██      ██   ██ 
+${magenta}██      ██   ██ ███████ ██   ████ ███████  ██████ ██   ██ 
+${reset}
+
+»»» The most overcomplicated fetch to exist
  
-version 0.2: Ni Bien Ni Mal
+${blue}version ${yellow}${version[0]}${magenta}: ${green}${version[1]}${reset}
+
+ » Requires bash v4.3+ 
+
 Options:
-    just fire up the damn thing wtf you expect?
+   -v | --version -> version of the Script
+   -h | --help    -> prints this section
+   -c | --config  -> override default config location 
+                     the file name is «boi» btw
+   -a | --args    -> will output fetch info you want, sort of
+                     EXAMPLE:  
+                     » frenzch.sh --args cpu, resolution, uptime, kernel, panel
 "
-        exit 1
+    exit 1
 }
 
 fetch_idk() {
-        read -r row col <<< "$(stty size)"
-
-        if [ "$row" -ge 34 ] && [ "$col" -ge 130 ]; then
-                big_fetch
-        
-        elif [ "$row" -ge 24 ] && [ "$col" -ge 47 ] ; then
-                medium_fetch
-        else
-                echo "Please make the terminal window larger!"
-        fi
-}
-
-# Load the things you wanna see in the fetch, btw, the limit is 3 in hardware, 3 in software
-# The other way is 6 hardware or 6 software. so, its like having two sections of sorts
-options() {
-    declare -a hardware=("display" "ram" "device" "temperature" "cpu cores" "mem" "gpu")
-    declare -a software=("w. manager" "editor" "panel" "kernel" "terminal" "font" "de" "uptime" "font size")
-    divider=${magenta}∆${reset} Hardware ${yellow}»»»»»»»${blue}»»»»»»${green}»»»»»» ${magenta}∆${reset}
-}
-
-get_editor() {
-    # In case the $EDITOR variable is empty, posix attempt
-    if [ -z "$EDITOR" ]; then
-        : "${editor_boi:=$(command -v nvim)}" "${editor_boi:=$(command -v vim)}" "${editor_boi:=$(command -v emacs)}" "${editor_boi:=$(command -v vim)}"
-        editor=$(basename $editor_boi)
+    # READ CONFIG
+    if test -f "$config_dir" ; then # In case the config is deleted or something idk
+        source "$config_dir"
     else
-        editor=$(basename "${VISUAL:-$EDITOR}")
+        source "$ROOT/config"
     fi
-}
-
-get_ram() {
-    ram_mem="$(free -h | awk 'NR == 2 {printf("%s", $2)}' | tr '[:upper:]' '[:lower:]' | sed 's/[a-z]*//g') gb"
-}
-
-get_panel() {
-    # add more if you know some other bar or something idkf
-    bar=$(ps -e | grep -m 1 -o \
-            -e "i3bar$" \
-            -e "dzen2$" \
-            -e "tint2$" \
-            -e "xmobar$" \
-            -e "swaybar$" \
-            -e "polybar$" \
-            -e "lemonbar$" \
-            -e "taffybar$")
-        bar=${bar# }
-
-        if [[ "$bar" == ""  ]]; then
-            bar="no bar"
-        fi
-}
-
-get_resolution() {
-    res="$(xrandr --current | grep ' connected' | grep -o '[0-9]\+x[0-9]\+')"
-}
-
-get_kernel() {
-read -r k_ver k_type <<< "$(uname -r | sed 's/-/\ /g')"
-k_type="$(echo $(echo $k_type | sed 's/[0-9]/\ /g') | sed -e 's/\b\([a-z]\+\)[ ,\n]\1/\1/g')"
-}
-
-get_uptime() {
-    IFS=. read -r s _ < /proc/uptime
-
-    # Convert the uptime from seconds into days, hours and minutes.
-    d=$((s / 60 / 60 / 24))
-    h=$((s / 60 / 60 % 24))
-    m=$((s / 60 % 60))
-
-    # Only append days, hours and minutes if they're non-zero.
-    case "$d" in ([!0]*) uptime="${uptime}${d}d "; esac
-    case "$h" in ([!0]*) uptime="${uptime}${h}h "; esac
-    case "$m" in ([!0]*) uptime="${uptime}${m}m "; esac
-
-}
-
-get_device() {
-    device_name=$(tr '[:upper:]' '[:lower:]' </sys/devices/virtual/dmi/id/product_name)
-}
-
-get_wm() {
-        OS=$(uname -s)
-        case "$OS" in
-                "Linux"|"GNU"*)
-                        if [ "$XDG_SESSION_DESKTOP" ]; then
-                                wm=$XDG_SESSION_DESKTOP
-                        elif [ "$XDG_CURRENT_DESKTOP" ]; then
-                                wm=$XDG_CURRENT_DESKTOP
-                        else
-                                # taken from neofetch
-                                id=$(xprop -root -notype _NET_SUPPORTING_WM_CHECK)
-                                id=${id##* }
-                                wm=$(xprop -id "$id" -notype -len 100 -f _NET_WM_NAME 8t)
-                                wm=${wm##*WM_NAME = \"}
-                                wm=${wm%%\"*}
-                        fi
-                        ;;
-                "Darwin")
-                        if [ $(pgrep -lfc yabai) != 0 ] || [ $(pgrep -lfc amehtsysty) != 0 ] || [ $(pgrep -lfc spectacle) != 0 ]; then
-                                wm="yabai"
-                        fi
-                        ;;
-                "CYGWIN"*|"MSYS"*|"MINGW"*)
-                        OS="windows"
-                        wm="explorer"
-                        break
-                        ;;
-                "*") printf "Not Supported/n" ;;
-        esac
-}
-
-get_user() {
-    us="$(who | awk '!seen[$1]++ {printf $1}')"
-}
-
-get_os() {
-    for os in /etc/os-release /usr/lib/os-release; do
-        [ -f $os ] && . $os && break
-    done
-    os=$(echo "$PRETTY_NAME" | tr '[:upper:]' '[:lower:]')
-}
-
-term_size() {
-    if type -p xdotool &>/dev/null ; then
-        IFS=$'\n' read -d "" -ra win <<< "$(xdotool getactivewindow getwindowgeometry --shell %1)"
-        term_width="${win[3]/WIDTH=}"
-        term_height="${win[4]/HEIGHT=}"
-
-    elif type -p xwininfo &>/dev/null; then
-        # Get the focused window's ID.
-        if type -p xdo &>/dev/null; then
-            current_window="$(xdo id)"
-
-        elif type -p xprop &>/dev/null; then
-            current_window="$(xprop -root _NET_ACTIVE_WINDOW)"
-            current_window="${current_window##* }"
-        
-        elif type -p xdpyinfo &>/dev/null; then
-            current_window="$(xdpyinfo | grep -F "focus:")"
-            current_window="${current_window/*window }"
-            current_window="${current_window/,*}"
-        fi
-
-        # If the ID was found get the window size.
-        if [[ "$current_window" ]]; then
-            term_size=("$(xwininfo -id "$current_window")")
-            term_width="${term_size[0]#*Width: }"
-            term_width="${term_width/$'\n'*}"
-            term_height="${term_size[0]/*Height: }"
-            term_height="${term_height/$'\n'*}"
-        fi
-    fi
-    term_width="${term_width:-0}"
-    echo $term_height $term_width
+    
+    info_shit
+    get_term_size 
+    padding=$(( (term_width-1)/2))
+    clear
+    [[ $term_height -ge 34 ]] && [[ $term_width -ge 130 ]] && big_fetch &&  exit 1
+    [[ $term_height -ge 24 ]] && [[ $term_width -ge 47 ]] && medium_fetch && exit 1
+    [[ $term_height -ge 15 ]] && [[ $term_width -ge 42 ]] && small_fetch && exit 1
+    [[ $term_height -ge 14 ]] && [[ $term_width -ge 30 ]] && extra_small_fetch || printf "Please make the terminal window larger!"
 }
 
 info_shit() {
-        # Get pretty name of OS
-        get_os
-        
-        # Get username or somemthing
-        get_user
+    # each of these variables contains info bout how their 
+    # respective info will be printed, ie if info will be a short version or a long version
 
-        # Get Window Manager
-        get_wm
+    for i in "${args[@]}" ; do
+        case $i in
+        us) # Get username or somemthing
+            software_name[${#software_name[@]}]="$i"
+            get_user
+            ;;
+        os)
+            software_name[${#software_name[@]}]="$i"
+            get_os
+            ;;
+        wm)
+            software_name[${#software_name[@]}]="$i"
+            get_wm
+            ;;
+        editor)
+            software_name[${#software_name[@]}]="$i"
+            get_editor
+            ;;
+        panel|bar)
+            get_panel
+            software_name[${#software_name[@]}]="$i"
+            ;;
+        resolution|display) # Get resolution
+            hardware_name[${#hardware_name[@]}]="$i"
+            get_resolution
+            ;;
+        ram|ram_free|ram_used) # Get RAM mema
+            hardware_name[${#hardware_name[@]}]="ram"
+            get_ram "$1"
+            ;;
+        device) # Get device (pc model) name
+            hardware_name[${#hardware_name[@]}]="$i"
+            get_device
+            ;;
+        gpu) # get graphics card
+            hardware_name[${#hardware_name[@]}]="$i"
+            get_gpu
+            ;;
+        kern)
+            software_name[${#software_name[@]}]="$i"
+            get_kernel
+            ;;
+        shell)
+            software_name[${#software_name[@]}]="$i"
+            ;;
+        de)
+            software_name[${#software_name[@]}]="$i"
+            ;;
+        cpu)
+            hardware_name[${#hardware_name[@]}]="$i"
+            ;;
+        cpu_cores)
+            hardware_name[${#hardware_name[@]}]="$i"
+            ;;
+        esac
+    done
 
-        # Get Editor
-        get_editor
-        
-        # Get panel
-        get_panel
+    declare -n i
+    local j=0
+    for i in "${hardware_name[@]}" ; do
+        hardware+=([${hardware_name[j]}]="$i")
+        unset i # Removes the vars created in info.sh
+        ((j++))
+    done
 
-        # Get resolution        
-        get_resolution
-
-        # Get RAM mem
-        get_ram
-
-        # Get device (pc model) name
-        get_device
+    declare -n i
+    j=0
+    for i in "${software_name[@]}" ; do
+        software+=([${software_name[j]}]="$i")
+        unset i # Removes the vars created in info.h
+        ((j++))
+    done ; unset j
 }
 
-medium_fetch() {
-    info_shit
+extra_small_fetch() {
+    local boi="\n"
+    colors=( "$cyan" "$red" "$green" "$magenta" "$blue" "$yellow" "$green" "$magenta" "$red" "$cyan" "$yellow" "$blue" "$green")
+    seed=${#colors[@]}
 
-    # The size of the each fetch itself is 32 characters long, since I'm a newb on this that's the size hardcoded
+    for i in ${order[@]} ; do
+        case $i in  
+            software)
+                for i in "${software_name[@]}" ; do
+                    color=$(($RANDOM%${seed}))
+                    color2=$(($RANDOM%${seed}))
+                    boi+=$(printf "${colors[$color2]}%8s : ${colors[$color]}%-6s %0s" "$i" "${software["$i"]}" "\n")
+                done
+            ;;
+            hardware)
+                for i in "${hardware_name[@]}" ; do
+                    color=$(($RANDOM%${seed}))
+                    color2=$(($RANDOM%${seed}))
+                    boi+=$(printf "${colors[$color2]}%8s : ${colors[$color]}%-6s %0s" "$i" "${hardware["$i"]}" "\n")
+                done
+                ;;
+        esac
+    done
+    boi=$(printf '%b' "$boi")
+    print="$print\\033[1B"
+    print_textart "$boi" $(( (term_width/2 - 1) - 10 ))
+    print="$print\\033[1B"
+    printf "$print${reset}\n"
+    unset boi
+}
 
-    # This section is the user with the os name. Originally hardcoded, this is the current dirty way to
-    # center it atm
+small_fetch() {
 
-    left_pad=$((32 - $(echo $us | wc -m) - $(echo $os | wc -m) - 6))
-    center_pad=$((32 - $(echo $us | wc -m) - $(echo $os | wc -m) - 3))
-     right_pad=$((32 - $center_pad - $left_pad))
+meep=$(printf '%b' "\
+${cyan}        ______
+${cyan}       /ゝ    フ
+${cyan}      |   _  _|
+${cyan}      /,ミ__Xノ
+${cyan}    /       |
+${cyan}   /  \    ノ
+${cyan} __│  | |  |
+${cyan}/ _|   | |  |
+${cyan}|(_\___\_)__)
+${cyan} \_つ${reset}")
 
-    # This section is the info with hearts. Currently is hardcoded until there's a way to generalize it
+    local maap="" ; local ten="          "
+    local colors=( "$cyan" "$red" "$green" "$magenta" "$blue" "$yellow" "$green" "$magenta" "$red" "$cyan" "$yellow" "$blue" "$green")
+    local seed=${#colors[@]} ; local fetch_begin=5 ; local fetch_end=3
 
-    us_os_str=$(echo $(echo "$us" | sed -e :a -e 's/^.\{1,'"$left_pad"'\}$/⠀&/;ta')$(echo "$os" | sed -e :a -e 's/^.\{1,'"$center_pad"'\}$/⠀&/;ta')$(echo "​" | sed -e :a -e 's/^.\{1,'"$right_pad"'\}$/⠀&/;ta'))
+    for i in ${order[@]} ; do
+        case $i in  
+            hardware)
+                for i in "${hardware_name[@]}" ; do
+                    color=$(($RANDOM%${seed}))
+                    y="$i"
+                    y="${y:0:10}${ten:0:$((10 - ${#y}))}"
+                    maap+=$(printf "${colors[$color]}%s %s %s" "$y" "${hardware["$i"]}" "\n")
+                done
+                ;;
+            software)
+                for i in "${software_name[@]}" ; do
+                    color=$(($RANDOM%${seed}))
+                    y="$i"
+                    y="${y:0:10}${ten:0:$((10 - ${#y}))}"
+                    maap+=$(printf "${colors[$color]}%s %s %s" "$y" "${software["$i"]}" "\n")
+                done
+                ;;
+        esac
+    done ; unset seed ten colors
+    maap=$(printf '%b' "$maap")
+    END=$(( ${#software_name[@]} + ${#hardware_name[@]} ))
+    print="$print\\033[${fetch_begin}E"
+    print_textart "$maap\n" $(( $padding ))
+    print="$print\\033[9999999D\\033[$(( $END+1 ))A"
+    print_textart "$meep" $(( $padding - 23 ))
+    print="$print\\033[${fetch_end}B"
+    printf "$print\n"
+}
 
-    size=$((32 - $(echo "$ram_mem" | wc -m) - $(echo "ram" | wc -m) - 2))
-    ram_str=$(echo "ram" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$ram_mem")
-
-    size=$((32 - $(echo "$device_name" | wc -m) - $(echo "device" | wc -m) - 2))
-        dev_str=$(echo "device" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$device_name")
-
-    size=$((32 - $(echo "$res" | wc -m) - $(echo "display" | wc -m) - 2))
-    res_str=$(echo "display" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$res")
-
-    size=$((32 - $(echo $wm | wc -m) - $(echo "w. manager" | wc -m) - 2))
-    wm_str=$(echo "w. manager" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$wm")
-
-
-
-    size=$((32 - $(echo $bar | wc -m) - $(echo "panel" | wc -m) - 2)) 
-    bar_str=$(echo "panel" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$bar")
-
-    size=$((32 - $(echo $editor | wc -m) - $(echo "editor" | wc -m) - 2)) 
-    editor_str=$(echo "editor" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$editor") 
-
-    printf '%b' "\
-
-${black}+--------------------------------------------+
-${black}|                                            |
-${black}|     ${magenta}∆${reset} Hardware ${yellow}»»»»»»»${blue}»»»»»»${green}»»»»»» ${magenta}∆${reset}       ${black}|
-${black}|     ${red}♥${reset} ${dev_str}       ${black}|
-${black}|     ${yellow}♥${reset} ${ram_str}       ${black}|
-${black}|     ${green}♥${reset} ${res_str}       ${black}|
-${black}|                                            |
-${black}|     ${magenta}∆${reset} Software ${yellow}»»»»»»»${blue}»»»»»»${green}»»»»»» ${magenta}∆${reset}       ${black}|
-${black}|     ${red}♥${reset} ${wm_str}       ${black}|
-${black}|     ${yellow}♥${reset} ${bar_str}       ${black}|
-${black}|     ${green}♥${reset} ${editor_str}       ${black}|
+medium_fetch() {  
+    maap=""
+    colors=($red $yellow $green $blue $magenta $cyan)
+    seed=${#colors[@]} ; n=32 ; j=0
+    ten=$(repeat_char $n ".")
+    
+    for i in ${order[@]} ; do
+    case $i in
+        software)
+            [[ "$space" == 'true' ]] && maap+="\n"
+            [[ "${#software_name}" -ne 0 ]] && {
+                maap+="$(decor_thingy "∆" "»" "Software" 32 "${magenta}")\n"
+                    for i in "${software_name[@]}" ; do 
+                        y="$i"
+                        y="${y:0:${n}} ${ten:0:$((${n} - ${#y} - ${#software["$i"]}))}"
+                        color=$(($j%${seed})) ; ((j++))
+                        maap+=$(printf "${colors[$color]}♥ ${reset}%s %s %s" "$y" "${software["$i"]}" "\n")
+                    done ; j=0
+                    space='true'
+            }
+        ;;
+        hardware)
+            [[ "$space" == 'true' ]] && maap+="\n"
+            [[ "${#hardware_name}" -ne 0 ]] && {
+                maap+="$(decor_thingy "∆" "»" "Hardware" 32 "${magenta}")\n"
+                for i in "${hardware_name[@]}" ; do 
+                    y="$i"
+                    y="${y:0:${n}} ${ten:0:$((${n} - ${#y} - ${#hardware["$i"]}))}"
+                    color=$(($j%${seed})) ; ((j++))
+                    maap+=$(printf "${colors[$color]}♥ ${reset}%s %s %s" "$y" "${hardware["$i"]}" "\n")
+                done
+                space='true'
+            }
+        ;;
+    esac
+done
+    
+    meep=$(printf '%b' "\
 ${black}|                                            |
 ${black}|          ${cyan}˛-˛${reset}                               ${black}|
 ${black}|         ${cyan}(_._)_${reset}  _     ${magenta}, _${reset}                  ${black}|
@@ -288,46 +271,36 @@ ${black}|      ${green}||${reset}                    ${green}||${reset}       ${
 ${black}|      ${green}||${reset}                 ${red}___${green}||${red}______.||${reset}     ${black}|
 ${black}|      ${green}||${reset}                 ${red}‘__${green}||${red}_______’${reset}      ${black}|
 ${black}|      ${green}||${reset}                  ${red} /${green}||${reset}     ${red} \       ${black}|
-${black}|${blue}______${green}||${blue}__________________${red}/${blue}_${green}||${blue}_______${red}\​${blue}______${black}|${reset}\n"
+${black}|${blue}______${green}||${blue}__________________${red}/${blue}_${green}||${blue}_______${red}\​${blue}______${black}|
+${black}+--------------------------------------------+${reset}")
+
+    END=$(( ${#software_name[@]} + ${#hardware_name[@]} ))
+    empty=""
+    for ((i=1;i<=$((END+3));i++)) ; do
+        empty+="${black}|                                            |\n"
+    done
+
+    print_textart "${black}+--------------------------------------------+\n" $(( $padding - 23 ))
+    print_textart "${black}|                                            |\n" $(( $padding - 23 ))
+    print_textart "$(printf '%b' "$empty")" $(( $padding - 23 ))
+    print="$print\\033[9999999D\\033[$(( $END+2 ))A"
+    print_textart "$(printf '%b' "$maap")\n" $(( (term_width - 37)/2 ))
+    print_textart "$meep" $(( $padding - 23 ))
+    printf "$print\n"
 }
 
 big_fetch() {
-        info_shit
 
-        # The size of the each fetch itself is 32 characters long, since I'm a newb on this that's the size hardcoded
-        # I'll change this part, trust me
+    colors=$(printf '%b' "\
+ _________________________
+/                         \
+| +----------+----------+ |
+| |   ${red}${italic}redy${reset}   | ${red_bg}  ${italic}redy  ${reset} | |
+| +----------+----------+ |
+| |   ${blue}${italic}blue${reset}   | ${blue_bg}  ${italic}blue  ${reset} | |
+")
 
-        # This section is the user with the os name. Originally hardcoded, this is the current dirty way to
-        # center it atm
-
-        left_pad=$((32 - $(echo $us | wc -m) - $(echo $os | wc -m) - 6))
-        center_pad=$((32 - $(echo $us | wc -m) - $(echo $os | wc -m) - 3))
-        right_pad=$((32 - $center_pad - $left_pad))
-
-        # This section is the info with hearts. Currently is hardcoded until there's a way to generalize it
-        # just like neofetch does
-
-        us_os_str=$(echo $(echo "$us" | sed -e :a -e 's/^.\{1,'"$left_pad"'\}$/⠀&/;ta')$(echo "$os" | sed -e :a -e 's/^.\{1,'"$center_pad"'\}$/⠀&/;ta')$(echo "​" | sed -e :a -e 's/^.\{1,'"$right_pad"'\}$/⠀&/;ta'))
-
-        size=$((32 - $(echo "$ram_mem" | wc -m) - $(echo "ram" | wc -m) - 2))
-        ram_str=$(echo "ram" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$ram_mem")
-
-        size=$((32 - $(echo "$device_name" | wc -m) - $(echo "device" | wc -m) - 2))
-        dev_str=$(echo "device" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$device_name")
-
-        size=$((32 - $(echo "$res" | wc -m) - $(echo "display" | wc -m) - 2))
-        res_str=$(echo "display" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$res")
-
-        size=$((32 - $(echo $wm | wc -m) - $(echo "w. manager" | wc -m) - 2))
-        wm_str=$(echo "w. manager" $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$wm")
-
-        size=$((13 - $(echo "$bar" | wc -m)))
-        bar_str=$(echo $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$bar")
-
-        size=$((14 - $(echo "$editor" | wc -m)))
-        editor_str=$(echo $(echo " " | sed -e :a -e 's/^.\{1,'"$size"'\}$/.&/;ta') "$editor")
-
-        printf '%b' "\
+    meep=$(printf '%b' "\
 ${black}+------------------------------------${magenta}×${black}------------------------------------------------------------------------------------------------------+${reset}
 ${black}|${reset}                                    ${magenta}|${reset}                                                                                                      ${black}|
 ${black}|${reset}             ${yellow}O${reset}                      ${magenta}|${reset}                                                                                                      ${black}|
@@ -359,31 +332,46 @@ ${black}|${reset}    ${red}_| ${green}'-----------'${red} |_${reset}      ${gree
 ${black}|${reset}   ${red}[= === === ==== == =]${reset}     ${green}||${reset}                 ${red} /${green}||${reset}     ${red} \ ${reset}              ${red}/ ${reset}           ${red} \ ${reset}                                                 ${black}|
 ${black}|${blue} __${red}[__--__--___--__--__]${blue}_____${green}||${blue}_________________${red}/${blue}_${green}||${blue}_______${red}\​${blue}_____________${red}O${blue}_______________${red}O${blue}________________________________________________ ${black}|
 ${black}| ${blue}----------------------------------------------------------------------------------------------------------------------------------------- ${black}|
-${black}+-------------------------------------------------------------------------------------------------------------------------------------------+${reset}\n"
-
+${black}+-------------------------------------------------------------------------------------------------------------------------------------------+${reset}")
+    
+    print_textart "$meep" $(( $padding - 70 ))
+    printf "$print"
 
 }
 
+check_stuff
 
-if [ -z "$1" ]; then
-        fetch_idk
-fi
+[ -z "$1" ] && fetch_idk
 
 while test $# -gt 0; do
-        case "$1" in
-                -h | --help)
-                        welcome
-                        ;;
-                *)
-                        fetch_idk
-                        exit 1
-                        ;;
-        esac
+    case "$1" in
+     -h | --help)
+        welcome
+        ;;
+    -v | --version)
+        printf "${blue}Version ${yellow}${version[0]}${magenta}: ${green}${version[1]}${reset}\n"
+        exit 1
+        ;;
+    -c | --config)
+        read -r config_dir <<< "$2"
+        ;;
+    -a | --args)
+        shift
+        # From https://stackoverflow.com/a/47500443
+        args=() ; str="$@"
+        while [[ "$str" =~ ([^,]+)(,[ ]+|$) ]] ; do
+            args+=("${BASH_REMATCH[1]}")  # capture the field
+            i=${#BASH_REMATCH}            # length of field + delimiter
+            str=${str:i}                  # advance the string by that length
+        done ; unset str                  # the loop deletes $str, yay
+        ;;
+    *)
+        fetch_idk
+        ;;
+    esac
 done
 
 # TODO
-# Make medium fetch
-# Make small fetch
 # Fix the shit done in big fetch
 # Generalize the Software and Hardware
 # options such that user can change its order,
