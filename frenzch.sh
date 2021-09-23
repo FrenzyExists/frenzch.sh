@@ -9,10 +9,11 @@
 # laugh. You have been warned, and you never found this in my repo.
 
 # Dependancies
-ROOT=$(pwd)
+MYSELF="$(readlink -f "$0")"
+MYDIR="${MYSELF%/*}"
 # shellcheck source=./info.sh
-source "$ROOT/info.sh" # FETCH INFO
-source "$ROOT/constants.sh" # CONSTANTS OR SOMETHING IDFK
+source "$MYDIR/info.sh" # FETCH INFO
+source "$MYDIR/constants.sh" # CONSTANTS OR SOMETHING IDFK
 #------------------------------------------------------------#
 # WARNING:                                                   #
 # THIS FOLLOWING SECTION SHOWS THE ROADMAP FOR FRENCH.       #
@@ -52,7 +53,7 @@ fetch_idk() {
     if test -f "$config_dir" ; then # In case the config is deleted or something idk
         source "$config_dir"
     else
-        source "$ROOT/config"
+        source "$MYDIR/config"
     fi
     
     info_shit
@@ -260,28 +261,28 @@ medium_fetch() {
 done
     
     meep=$(printf '%b' "\
-${black}|                                            |
-${black}|          ${cyan}˛-˛${reset}                               ${black}|
-${black}|         ${cyan}(_._)_${reset}  _     ${magenta}, _${reset}                  ${black}|
-${black}|        ${cyan}/${red}:${cyan}:${red}:${cyan}:${red}:${cyan}:\//${reset}    ${magenta}(| |${reset}           ${red}.|${reset}     ${black}|
-${black}|    ${green}____${cyan}\______/'${green}______${magenta}|_|${green}______${reset}     ${red}||${reset}     ${black}|
-${black}|    ${green}°__________________________°${reset}     ${red}||${reset}     ${black}|
-${black}|      ${green}||${reset}                    ${green}||${reset}       ${red}||${reset}     ${black}|
-${black}|      ${green}||${reset}                    ${green}||${reset}       ${red}||${reset}     ${black}|
-${black}|      ${green}||${reset}                 ${red}___${green}||${red}______.||${reset}     ${black}|
-${black}|      ${green}||${reset}                 ${red}‘__${green}||${red}_______’${reset}      ${black}|
-${black}|      ${green}||${reset}                  ${red} /${green}||${reset}     ${red} \       ${black}|
-${black}|${blue}______${green}||${blue}__________________${red}/${blue}_${green}||${blue}_______${red}\​${blue}______${black}|
-${black}+--------------------------------------------+${reset}")
+${black}│                                            │
+${black}│          ${cyan}˛-˛${reset}                               ${black}│
+${black}│         ${cyan}(_._)_${reset}  _     ${magenta}, _${reset}                  ${black}│
+${black}│        ${cyan}/${red}:${cyan}:${red}:${cyan}:${red}:${cyan}:\//${reset}    ${magenta}(| |${reset}           ${red}.|${reset}     ${black}│
+${black}│    ${green}____${cyan}\______/'${green}______${magenta}|_|${green}______${reset}     ${red}||${reset}     ${black}│
+${black}│    ${green}°__________________________°${reset}     ${red}||${reset}     ${black}│
+${black}│      ${green}||${reset}                    ${green}||${reset}       ${red}||${reset}     ${black}│
+${black}│      ${green}||${reset}                    ${green}||${reset}       ${red}||${reset}     ${black}│
+${black}│      ${green}||${reset}                 ${red}___${green}||${red}______.||${reset}     ${black}│
+${black}│      ${green}||${reset}                 ${red}‘__${green}||${red}_______’${reset}      ${black}│
+${black}│      ${green}||${reset}                  ${red} /${green}||${reset}     ${red} \       ${black}│
+${black}│${blue}――――――${green}||${blue}――――――――――――――――――${red}/${blue}―${green}||${blue}―――――――${red}\​${blue}――――――${black}│
+${black}└────────────────────────────────────────────┘${reset}")
 
     END=$(( ${#software_name[@]} + ${#hardware_name[@]} ))
     empty=""
     for ((i=1;i<=$((END+3));i++)) ; do
-        empty+="${black}|                                            |\n"
+        empty+="${black}│                                            │\n"
     done
 
-    print_textart "${black}+--------------------------------------------+\n" $(( $padding - 23 ))
-    print_textart "${black}|                                            |\n" $(( $padding - 23 ))
+    print_textart "${black}┌────────────────────────────────────────────┐\n" $(( $padding - 23 ))
+    print_textart "${black}│                                            │\n" $(( $padding - 23 ))
     print_textart "$(printf '%b' "$empty")" $(( $padding - 23 ))
     print="$print\\033[9999999D\\033[$(( $END+2 ))A"
     print_textart "$(printf '%b' "$maap")\n" $(( (term_width - 37)/2 ))
@@ -290,6 +291,8 @@ ${black}+--------------------------------------------+${reset}")
 }
 
 big_fetch() {
+    
+    # red yellow green blue magenta cyan
 
     colors=$(printf '%b' "\
  _________________________
@@ -297,7 +300,17 @@ big_fetch() {
 | +----------+----------+ |
 | |   ${red}${italic}redy${reset}   | ${red_bg}  ${italic}redy  ${reset} | |
 | +----------+----------+ |
+| |  ${yellow}${italic}yellow${reset}  | ${yellow_bg} ${italic}yellow ${reset} | |
+| +----------+----------+ |
+| |  ${green}${italic}greeny${reset}  | ${green_bg} ${italic}greeny ${reset} | |
+| +----------+----------+ |
 | |   ${blue}${italic}blue${reset}   | ${blue_bg}  ${italic}blue  ${reset} | |
+| +----------+----------+ |
+| |   ${magenta}${italic}pink${reset}   | ${magenta_bg}  ${italic}pink  ${reset} | |
+| +----------+----------+ |
+| |   ${cyan}${italic}cyan${reset}   | ${cyan_bg}  ${italic}cyan  ${reset} | |
+| +----------+----------+ |
+\_________________________/
 ")
 
     meep=$(printf '%b' "\
@@ -305,22 +318,22 @@ ${black}+------------------------------------${magenta}×${black}---------------
 ${black}|${reset}                                    ${magenta}|${reset}                                                                                                      ${black}|
 ${black}|${reset}             ${yellow}O${reset}                      ${magenta}|${reset}                                                                                                      ${black}|
 ${black}|${reset}            ${red}(_)${reset}                     ${magenta}|${reset}                                                                                                      ${black}|
-${black}|${reset}          ${red}_ )_( _${reset}                   ${magenta}A${reset}                                                                       _________________________      ${black}|
-${black}|${reset}        ${red}/\`_) H (_\`\  ${reset}              ${yellow}/|\                                                                     ${reset}/                         \     ${black}|
-${black}|${reset}      ${red}.' (  { }  ) '.${reset}             ${yellow}/-|-\                                                                    ${reset}| +----------+----------+ |     ${black}|
-${black}|${reset}    ${red}_/ /\` '-'='-' \`\ \_${reset}           ${yellow}\_|_/                           ${reset}${us_os_str}       | |   ${red}${italic}redy${reset}   | ${red_bg}  ${italic}redy  ${reset} | |     ${black}|
-${black}|${reset}   ${red}[_.'  ${yellow}I am old   ${red}'._]${reset}                                                                                   | +----------+----------+ |     ${black}|
-${black}|${reset}     ${red}| ${green}.-----------.${reset} ${red}|${reset}       ${green}o${reset}  ${green}o${reset}                                  ${magenta}∆${reset} Hardware ${yellow}»»»»»»»${blue}»»»»»»${green}»»»»»» ${magenta}∆${reset}        | |  ${yellow}${italic}yellow${reset}  | ${yellow_bg} ${italic}yellow ${reset} | |     ${black}|
-${black}|${reset}     ${red}| ${green}|${cyan}  .-\"\"\"-.  ${green}| ${red}|${reset}       ${green}o${yellow}\/${green}o o${reset}          ${blue}.${reset}                     ${red}♥${reset} ${dev_str}        | +----------+----------+ |     ${black}|
-${black}|${reset}     ${red}| ${green}|${cyan} /    /  \ ${green}| ${red}|${reset}      ${green}oo${yellow}|/o${reset}            ${blue}|${reset}                     ${yellow}♥${reset} ${ram_str}        | |  ${green}${italic}greeny${reset}  | ${green_bg} ${italic}greeny ${reset} | |     ${black}|
-${black}|${reset}     ${red}| ${green}|${cyan}|-   <   -|${green}| ${red}|${reset}      ${yellow} \|${green}o${reset}        ${yellow}_____${blue}|${reset}                     ${green}♥${reset} ${res_str}        | +----------+----------+ |     ${black}|
-${black}|${reset}     ${red}| ${green}|${cyan} \    \  / | ${red}|${reset}       ${magenta}_${yellow}|${magenta}__${reset}      ${yellow}|######|${reset}                                                            | |   ${blue}${italic}blue${reset}   | ${blue_bg}  ${italic}blue  ${reset} | |     ${black}|
-${black}|${reset}     ${red}| ${green}|${cyan}[\`'-...-'\`]| ${red}|${reset}      ${magenta}|....|${reset}     ${yellow}|######|${reset}                    ${magenta}∆${reset} Software ${yellow}»»»»»»»${blue}»»»»»»${green}»»»»»» ${magenta}∆${reset}        | +----------+----------+ |     ${black}|
-${black}|${reset}     ${red}| ${green}|${cyan} ;-.___.-; ${green}| ${red}|${reset}     ${green}__${magenta}\__/${green}_______${yellow}:${green}____${yellow}:${green}__${reset}                   ${red}♥${reset} ${wm_str}        | |   ${magenta}${italic}pink${reset}   | ${magenta_bg}  ${italic}pink  ${reset} | |     ${black}|
-${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}     ${green}°___________________°${reset}                   ${yellow}♥${reset} panel ..........${cyan}o${reset}${bar_str}        | +----------+----------+ |     ${black}|
-${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}        ${green} \\\\\ ${reset}        ${green} // ${reset}                     ${green}♥${reset} editor ....${cyan}o${reset}...${cyan}/​${reset}${editor_str}        | |   ${cyan}${italic}cyan${reset}   | ${cyan_bg}  ${italic}cyan  ${reset} | |     ${black}|
-${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}                                                           ${cyan}\ /​${reset}                       | +----------+----------+ |     ${black}|
-${black}|${reset}     ${red}| ${green}|${cyan} | ${yellow}_|||_ ${cyan}| ${green}| ${red}|${reset}           ${cyan}˛-˛${reset}                                 ${yellow}+------------${cyan}v${yellow}-----------+${reset}            \_________________________/     ${black}|
+${black}|${reset}          ${red}_ )_( _${reset}                   ${magenta}A${reset}                                                                                                      ${black}|
+${black}|${reset}        ${red}/\`_) H (_\`\  ${reset}              ${yellow}/|\                                                                                                     ${black}|
+${black}|${reset}      ${red}.' (  { }  ) '.${reset}             ${yellow}/-|-\                                                                                                    ${black}|
+${black}|${reset}    ${red}_/ /\` '-'='-' \`\ \_${reset}           ${yellow}\_|_/                                                                                                    ${black}|
+${black}|${reset}   ${red}[_.'  ${yellow}I am old   ${red}'._]${reset}                                                                                                                   ${black}|
+${black}|${reset}     ${red}| ${green}.-----------.${reset} ${red}|${reset}       ${green}o${reset}  ${green}o${reset}                                                                                                          ${black}|
+${black}|${reset}     ${red}| ${green}|${cyan}  .-\"\"\"-.  ${green}| ${red}|${reset}       ${green}o${yellow}\/${green}o o${reset}          ${blue}.${reset}                                                                                             ${black}|
+${black}|${reset}     ${red}| ${green}|${cyan} /    /  \ ${green}| ${red}|${reset}      ${green}oo${yellow}|/o${reset}            ${blue}|${reset}                                                                                             ${black}|
+${black}|${reset}     ${red}| ${green}|${cyan}|-   <   -|${green}| ${red}|${reset}      ${yellow} \|${green}o${reset}        ${yellow}_____${blue}|${reset}                                                                                             ${black}|
+${black}|${reset}     ${red}| ${green}|${cyan} \    \  / | ${red}|${reset}       ${magenta}_${yellow}|${magenta}__${reset}      ${yellow}|######|${reset}                                                                                            ${black}|
+${black}|${reset}     ${red}| ${green}|${cyan}[\`'-...-'\`]| ${red}|${reset}      ${magenta}|....|${reset}     ${yellow}|######|${reset}                                                                                            ${black}|
+${black}|${reset}     ${red}| ${green}|${cyan} ;-.___.-; ${green}| ${red}|${reset}     ${green}__${magenta}\__/${green}_______${yellow}:${green}____${yellow}:${green}__${reset}                                                                                           ${black}|
+${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}     ${green}°___________________°${reset}                                     ${cyan}o${reset}                                                     ${black}|
+${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}        ${green} \\\\\ ${reset}        ${green} // ${reset}                     ${green}♥${reset} editor ....${cyan}o${reset}...${cyan}/​${reset}                                                      ${black}|
+${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}                                                           ${cyan}\ /​${reset}                                                       ${black}|
+${black}|${reset}     ${red}| ${green}|${cyan} | ${yellow}_|||_ ${cyan}| ${green}| ${red}|${reset}           ${cyan}˛-˛${reset}                                 ${yellow}+------------${cyan}v${yellow}-----------+                                            ${black}|
 ${black}|${reset}     ${red}| ${green}|${cyan} | ${yellow}>===< ${cyan}| ${green}| ${red}|${reset}          ${cyan}(_._)${reset}   _    ${magenta}, _${reset}                     ${yellow}|${reset}  ${cyan}______________${reset}      ${cyan}@ ${yellow}|${reset}                                            ${black}|
 ${black}|${reset}     ${red}| ${green}|${cyan} | ${yellow}|___| ${cyan}| ${green}| ${red}|${reset}         ${cyan}/${red}:${cyan}:${red}:${cyan}:${red}:${cyan}:\//${reset}   ${magenta}(| |${reset}           ${red}.|${reset}        ${yellow}|${reset} ${cyan}/              \ ${reset}      ${yellow}|${reset}                                            ${black}|
 ${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}     ${green}____${cyan}\______/'${green}_____${magenta}|_|${green}______${reset}     ${red}||${reset}        ${yellow}|${reset} ${cyan}| inspired by  |${reset}  ${red}(\)  ${yellow}|${reset}                                            ${black}|

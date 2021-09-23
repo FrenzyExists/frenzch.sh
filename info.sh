@@ -3,9 +3,10 @@
 # Library encharged of obtaining system info
 # Currently compatible with windows and Linux
 
-export ROOT=$(pwd)
+MYSELF="$(readlink -f "$0")"
+MYDIR="${MYSELF%/*}"
 
-source "$ROOT/bash_jesus.sh"
+source "$MYDIR/bash_jesus.sh"
 
 check_stuff() {
     type -p bash &>/dev/null || {
