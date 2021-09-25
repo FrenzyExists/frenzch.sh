@@ -13,7 +13,7 @@ install:
 	@cp -p frenzch.1 $(DESTDIR)$(MANDIR)/man1
 	@cp -p info.sh $(DESTDIR)$(PREFIX)/bin/info.sh
 	@cp -p bash_jesus.sh $(DESTDIR)$(PREFIX)/bin/bash_jesus.sh
-	@cp -p boi $(DESTDIR)$(PREFIX)/bin/boi
+	@cp -p config $(DESTDIR)$(PREFIX)/bin/config
 	@chmod 755 $(DESTDIR)$(PREFIX)/bin/frenzch.sh
 uninstall:
 	@rm -rf $(DESTDIR)$(PREFIX)/bin/frenzch.sh
