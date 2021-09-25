@@ -223,7 +223,7 @@ ${cyan} \_つ${reset}")
     printf "$print\n"
 }
 
-medium_fetch() {  
+fetchy_info_thingy() {
     maap=""
     colors=($red $yellow $green $blue $magenta $cyan)
     seed=${#colors[@]} ; n=32 ; j=0
@@ -258,8 +258,14 @@ medium_fetch() {
             }
         ;;
     esac
-done
-    
+    done
+    END=$(( ${#software_name[@]} + ${#hardware_name[@]} ))
+
+}
+
+medium_fetch() {  
+    fetchy_info_thingy
+
     meep=$(printf '%b' "\
 ${black}│                                            │
 ${black}│          ${cyan}˛-˛${reset}                               ${black}│
@@ -275,7 +281,6 @@ ${black}│      ${green}||${reset}                  ${red} /${green}||${reset} 
 ${black}│${blue}――――――${green}||${blue}――――――――――――――――――${red}/${blue}―${green}||${blue}―――――――${red}\​${blue}――――――${black}│
 ${black}└────────────────────────────────────────────┘${reset}")
 
-    END=$(( ${#software_name[@]} + ${#hardware_name[@]} ))
     empty=""
     for ((i=1;i<=$((END+3));i++)) ; do
         empty+="${black}│                                            │\n"
@@ -293,6 +298,7 @@ ${black}└───────────────────────
 big_fetch() {
     
     # red yellow green blue magenta cyan
+    fetchy_info_thingy
 
     colors=$(printf '%b' "\
  _________________________
@@ -315,23 +321,23 @@ big_fetch() {
 
     meep=$(printf '%b' "\
 ${black}+------------------------------------${magenta}×${black}------------------------------------------------------------------------------------------------------+${reset}
-${black}|${reset}                                    ${magenta}|${reset}                                                                                                      ${black}|
-${black}|${reset}             ${yellow}O${reset}                      ${magenta}|${reset}                                                                                                      ${black}|
-${black}|${reset}            ${red}(_)${reset}                     ${magenta}|${reset}                                                                                                      ${black}|
-${black}|${reset}          ${red}_ )_( _${reset}                   ${magenta}A${reset}                                                                                                      ${black}|
-${black}|${reset}        ${red}/\`_) H (_\`\  ${reset}              ${yellow}/|\                                                                                                     ${black}|
-${black}|${reset}      ${red}.' (  { }  ) '.${reset}             ${yellow}/-|-\                                                                                                    ${black}|
-${black}|${reset}    ${red}_/ /\` '-'='-' \`\ \_${reset}           ${yellow}\_|_/                                                                                                    ${black}|
-${black}|${reset}   ${red}[_.'  ${yellow}I am old   ${red}'._]${reset}                                                                                                                   ${black}|
-${black}|${reset}     ${red}| ${green}.-----------.${reset} ${red}|${reset}       ${green}o${reset}  ${green}o${reset}                                                                                                          ${black}|
-${black}|${reset}     ${red}| ${green}|${cyan}  .-\"\"\"-.  ${green}| ${red}|${reset}       ${green}o${yellow}\/${green}o o${reset}          ${blue}.${reset}                                                                                             ${black}|
-${black}|${reset}     ${red}| ${green}|${cyan} /    /  \ ${green}| ${red}|${reset}      ${green}oo${yellow}|/o${reset}            ${blue}|${reset}                                                                                             ${black}|
+${black}|${reset}                                    ${magenta}|${reset}
+${black}|${reset}             ${yellow}O${reset}                      ${magenta}|${reset}
+${black}|${reset}            ${red}(_)${reset}                     ${magenta}|${reset}
+${black}|${reset}          ${red}_ )_( _${reset}                   ${magenta}A${reset}
+${black}|${reset}        ${red}/\`_) H (_\`\  ${reset}              ${yellow}/|\  
+${black}|${reset}      ${red}.' (  { }  ) '.${reset}             ${yellow}/-|-\  
+${black}|${reset}    ${red}_/ /\` '-'='-' \`\ \_${reset}           ${yellow}\_|_/ 
+${black}|${reset}   ${red}[_.'  ${yellow}I am old   ${red}'._]${reset}           
+${black}|${reset}     ${red}| ${green}.-----------.${reset} ${red}|${reset}       ${green}o${reset}  ${green}o${reset}
+${black}|${reset}     ${red}| ${green}|${cyan}  .-\"\"\"-.  ${green}| ${red}|${reset}       ${green}o${yellow}\/${green}o o${reset}          ${blue}.${reset}
+${black}|${reset}     ${red}| ${green}|${cyan} /    /  \ ${green}| ${red}|${reset}      ${green}oo${yellow}|/o${reset}            ${blue}|${reset} 
 ${black}|${reset}     ${red}| ${green}|${cyan}|-   <   -|${green}| ${red}|${reset}      ${yellow} \|${green}o${reset}        ${yellow}_____${blue}|${reset}                                                                                             ${black}|
 ${black}|${reset}     ${red}| ${green}|${cyan} \    \  / | ${red}|${reset}       ${magenta}_${yellow}|${magenta}__${reset}      ${yellow}|######|${reset}                                                                                            ${black}|
 ${black}|${reset}     ${red}| ${green}|${cyan}[\`'-...-'\`]| ${red}|${reset}      ${magenta}|....|${reset}     ${yellow}|######|${reset}                                                                                            ${black}|
 ${black}|${reset}     ${red}| ${green}|${cyan} ;-.___.-; ${green}| ${red}|${reset}     ${green}__${magenta}\__/${green}_______${yellow}:${green}____${yellow}:${green}__${reset}                                                                                           ${black}|
 ${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}     ${green}°___________________°${reset}                                     ${cyan}o${reset}                                                     ${black}|
-${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}        ${green} \\\\\ ${reset}        ${green} // ${reset}                     ${green}♥${reset} editor ....${cyan}o${reset}...${cyan}/​${reset}                                                      ${black}|
+${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}        ${green} \\\\\ ${reset}        ${green} // ${reset}                                  ${cyan}o${reset}   ${cyan}/​${reset}                                                      ${black}|
 ${black}|${reset}     ${red}| ${green}|${cyan} |  ${yellow}|||${cyan}  | ${green}| ${red}|${reset}                                                           ${cyan}\ /​${reset}                                                       ${black}|
 ${black}|${reset}     ${red}| ${green}|${cyan} | ${yellow}_|||_ ${cyan}| ${green}| ${red}|${reset}           ${cyan}˛-˛${reset}                                 ${yellow}+------------${cyan}v${yellow}-----------+                                            ${black}|
 ${black}|${reset}     ${red}| ${green}|${cyan} | ${yellow}>===< ${cyan}| ${green}| ${red}|${reset}          ${cyan}(_._)${reset}   _    ${magenta}, _${reset}                     ${yellow}|${reset}  ${cyan}______________${reset}      ${cyan}@ ${yellow}|${reset}                                            ${black}|
@@ -347,9 +353,13 @@ ${black}|${blue} __${red}[__--__--___--__--__]${blue}_____${green}||${blue}_____
 ${black}| ${blue}----------------------------------------------------------------------------------------------------------------------------------------- ${black}|
 ${black}+-------------------------------------------------------------------------------------------------------------------------------------------+${reset}")
     
-    print_textart "$meep" $(( $padding - 70 ))
-    printf "$print"
 
+    print="$print\\033[9999999D\\033[$(( $END + 5 ))A"
+    print_textart "$(printf '%b' "\n\n\n\n\n$maap")\n" $(( (term_width - 17)/2 ))
+    print="$print\\033[9999999D\\033[$(( $END + 5 ))A" 
+    print_textart "$meep" $(( $padding - 80 )) 
+
+    printf "$print\n"
 }
 
 check_stuff
