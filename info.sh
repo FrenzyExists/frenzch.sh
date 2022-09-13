@@ -29,11 +29,14 @@ get_wm() { # Get Window Manager
                                 wm=$XDG_CURRENT_DESKTOP
                         else
                                 # taken from neofetch
-                                id=$(xprop -root -notype _NET_SUPPORTING_WM_CHECK)
-                                id=${id##*}
-                                wm=$(xprop -id "$id" -notype -len 100 -f _NET_WM_NAME 8t)
-                                wm=${wm##*WM_NAME=\"}
-                                wm=${wm%%\"*}
+                                uid=$(xprop -root -notype _NET_SUPPORTING_WM_CHECK)
+                                #uid=${uid##*}
+                                uid=$(echo $uid | grep -o '0x[0-9a-f]\+')
+                                wm=$(xprop -id "$uid" -notype -len 100 -f _NET_WM_NAME 8t)
+                                wm=$(echo $wm | grep -o '_NET_WM_NAME = \"[A-Za-z]\+"' | awk '{print $3}' | awk 'gsub(/"/, "", $0)')
+                                #wm=$(echo $wm | grep WM_CLASS | awk '{print $4}')
+                                #wm=${wm##*WM_NAME=\"}
+                                #wm=${wm%%\"*}
                         fi
                         ;;
                 "Darwin")
@@ -46,9 +49,9 @@ get_wm() { # Get Window Manager
                         wm="explorer"
                         break
                         ;;
-                "*")    
+                "*")
                         OS="unknown"
-                        wm="unknown" 
+                        wm="unknown"
                     ;;
         esac
 }
@@ -99,7 +102,7 @@ get_panel() { # all the panels
             -e "taffybar$" \
             -e "awesome$")
         bar=${bar#}
-        
+
         if [[ "$bar" == "awesome" ]] ; then
             bar="wibar"
         elif [[ "$bar" == ""  ]]; then
@@ -132,8 +135,8 @@ get_uptime() {
 
 #FIX THIS CRAP
 get_cpu() {
-  case $OSTYPE in 
-    Linux)  
+  case $OSTYPE in
+    Linux)
       get_line /proc/cpuinfo 5
       IFS=":"
       set -- $line
@@ -144,7 +147,7 @@ get_cpu() {
     trim_all $cpu
     cpu=$trimmed_string
     set -- $cpu
-    if [ "$1" = "Intel(R)" ]; then 
+    if [ "$1" = "Intel(R)" ]; then
       cpu_vendor="Intel "
       cpu=${cpu##Intel(R) }
       if [ "$2" = "Core(TM)2" ]; then
@@ -153,13 +156,13 @@ get_cpu() {
       fi
     fi
     cpu=${cpu_vendor}${cpu_series}${cpu};;
-  esac 
+  esac
 }
 
 # FIX THIS
 get_gpu() { # Get Graphics Card
     OS=$(uname -s)
-    case $OS in 
+    case $OS in
       Linux)
         lspci > $HOME/Desktop/weeeee
         get_line_content "$HOME/Desktop/weeeee" "VGA"
@@ -190,5 +193,3 @@ get_gpu() { # Get Graphics Card
 get_term_size() {
     read -r term_height term_width <<< "$(stty size)"
 }
-
-

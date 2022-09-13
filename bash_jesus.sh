@@ -18,14 +18,10 @@ print_ascii() {
   done < /dev/stdin
 }
 
-rstrip() {
-    # Usage: rstrip "string" "pattern"
-    printf '%s\n' "${1%%$2}"
-}
 
-lstrip() {
-    # Usage: lstrip "string" "pattern"
-    printf '%s\n' "${1##$2}"
+strip_colors() {
+    # Usage: strip_all "string" "pattern"
+    printf '%s\n' $1 | sed $'s/\e\\[[0-9;:]*[a-zA-Z]//g'
 }
 
 greater_equal() { # Compares floats
@@ -41,13 +37,6 @@ get_line_content() {
       *"${2}"*) line_content="$line"; return;;
     esac
   done < "$1"
-}
-
-contains_element () {
-  local e match="$1"
-  shift
-  for e; do [[ "$e" == "$match" ]] && return 0; done
-  return 1
 }
 
 # multiplies a char n times

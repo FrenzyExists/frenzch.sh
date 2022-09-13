@@ -1,7 +1,8 @@
 # frenzch.sh
-A cozy fetch (currently super buggy)
+## A cozy fetch
+### Inspired by the awesome fetches of other ricers
 
-Frenzch is able to adjust its fetch according to the size of the terminal, at the moment there's at least 2 sizes
+Frenzch is able to adjust its fetch according to the size of the terminal, at the moment there's at least 4 sizes
 
 ## Full Fetch
 <p align="center">
@@ -24,9 +25,10 @@ Frenzch is able to adjust its fetch according to the size of the terminal, at th
 </p>
 
 
+
 ## TODO
 
-- [ ] fix some of the fetch info
+- [x] fix some of the fetch info
 - [x] add medium fetch
 - [x] add small fetch
 - [x] add extra small fetch

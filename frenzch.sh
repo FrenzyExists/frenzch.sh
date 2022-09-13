@@ -295,6 +295,26 @@ ${black}└───────────────────────
     printf "$print\n"
 }
 
+big_fetch_side=$(printf '%b' "\
+${black}|
+${black}|
+${black}|
+${black}|
+${black}|
+${black}|
+${black}|
+${black}|
+${black}|
+${black}|
+${black}|
+${black}|
+${black}|
+${black}|
+${black}|
+${black}|
+${black}|
+")
+
 big_fetch() {
     
     # red yellow green blue magenta cyan
@@ -352,10 +372,15 @@ ${black}|${reset}   ${red}[= === === ==== == =]${reset}     ${green}||${reset}  
 ${black}|${blue} __${red}[__--__--___--__--__]${blue}_____${green}||${blue}_________________${red}/${blue}_${green}||${blue}_______${red}\​${blue}_____________${red}O${blue}_______________${red}O${blue}________________________________________________ ${black}|
 ${black}| ${blue}----------------------------------------------------------------------------------------------------------------------------------------- ${black}|
 ${black}+-------------------------------------------------------------------------------------------------------------------------------------------+${reset}")
- 
+    
+    strcolor=$(strip_colors ${meep})
+    big_fetch_size=$(expr length ${strcolor})
+
     print_textart "$(printf '%b' "\n\n\n$maap")\n" $(( ($term_width - 17)/2 ))
     print="$print\\033[9999999D\\033[$(( $END + 6 ))A"
-    print_textart "$(printf '%b' "\n\n$colors")\n" $(( ($padding + $term_width - 17)/2 ))
+    print_textart "$(printf '%b' "\n\n$colors")\n" $(( ($term_width + 70)/2 ))
+    print="$print\\033[9999999D\\033[$(( $END + 11 ))A" 
+    print_textart "$(printf '%b' "\n\n$big_fetch_side")\n" $(( ($term_width + $big_fetch_size)/2 - 1))
     print="$print\\033[9999999D\\033[$(( $END + 11 ))A" 
     print_textart "$meep" $(( $padding - 70 )) 
 
@@ -395,7 +420,7 @@ while test $# -gt 0; do
 done
 
 # TODO
-# Fix the shit done in big fetch
-# Generalize the Software and Hardware
+# Fix big fetch (done)
+# Generalize the Software and Hardware (done)
 # options such that user can change its order,
 # or display or hide what it desires, kinda like neofetch of sorts
