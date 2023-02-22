@@ -110,10 +110,16 @@ get_panel() { # all the panels
         fi
 }
 
-get_resolution() { # screen resolution
-    read -r display <<< "$(xrandr --current | grep ' connected' | grep -o '[0-9]\+x[0-9]\+')"
+get_resolution() { # screen resolution    
+    local display_count="$(xrandr --current | grep ' connected' | grep -wo '[0-9]\+x[0-9]\+' | wc -l)"
+    if [[ "${display_count}" > 1 ]]; then
+        display="$(xrandr --current | grep ' connected' | grep -wo '[0-9]\+x[0-9]\+' | uniq -c)"
+        display="$(echo $display)"
+    else
+        display="$(xrandr --current | grep ' connected' | grep -wo '[0-9]\+x[0-9]\+')"
+    fi
 }
-
+get_resolution
 get_kernel() {
     read -r k_ver k_type <<< "$(uname -r | sed 's/-/\ /g')"
     k_ver=${k_ver%%-*} # Remove everything after first -
