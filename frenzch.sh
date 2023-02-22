@@ -61,7 +61,7 @@ fetch_idk() {
     padding=$(( (term_width-1)/2))
     clear
     [[ $term_height -ge 34 ]] && [[ $term_width -ge 130 ]] && big_fetch &&  exit 1
-    [[ $term_height -ge 24 ]] && [[ $term_width -ge 47 ]] && medium_fetch && exit 1
+    [[ $term_height -ge 26 ]] && [[ $term_width -ge 47 ]] && medium_fetch && exit 1
     [[ $term_height -ge 15 ]] && [[ $term_width -ge 42 ]] && small_fetch && exit 1
     [[ $term_height -ge 14 ]] && [[ $term_width -ge 30 ]] && extra_small_fetch || printf "Please make the terminal window larger!"
 }
@@ -114,12 +114,15 @@ info_shit() {
             ;;
         shell)
             software_name[${#software_name[@]}]="$i"
+            get_shell
             ;;
         de)
             software_name[${#software_name[@]}]="$i"
+            get_de
             ;;
         cpu)
             hardware_name[${#hardware_name[@]}]="$i"
+            get_cpu
             ;;
         cpu_cores)
             hardware_name[${#hardware_name[@]}]="$i"
@@ -289,7 +292,8 @@ ${black}└───────────────────────
     print_textart "${black}┌────────────────────────────────────────────┐\n" $(( $padding - 23 ))
     print_textart "${black}│                                            │\n" $(( $padding - 23 ))
     print_textart "$(printf '%b' "$empty")" $(( $padding - 23 ))
-    print="$print\\033[9999999D\\033[$(( $END+2 ))A"
+    #print="$print\\033[9999999D\\033[$(( $END+2 ))A"
+    print="$print\\033[1;1H\\033[$(( $END+2 ))A"
     print_textart "$(printf '%b' "$maap")\n" $(( (term_width - 37)/2 ))
     print_textart "$meep" $(( $padding - 23 ))
     printf "$print\n"

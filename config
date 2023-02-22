@@ -3,5 +3,5 @@
 # hardware_name=('device' 'ram' 'display' 'cpu' 'cores' 'gpu')
 # software_name=('wm' 'bar' 'editor' 'de' 'kern' 'shell' 'term' )
 
-args=("os" "us" "wm" "ram" "device" "bar" "editor" "display" )
+args=("os" "us" "wm" "ram" "device" "kern" "shell" "cpu" "bar" "editor" "display" )
 order=( "software" "hardware" )

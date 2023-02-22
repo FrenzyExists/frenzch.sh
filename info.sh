@@ -62,9 +62,9 @@ get_user() { # Gets host name
 
 get_ram() { # Get Memory ram
     if [[ $1 == "ram_free" ]] ; then
-        ram="$(rstrip "$(free -h | awk 'NR == 2 {printf("%s", $7)}')" "Gi") gb"
+        ram="$(free -h | awk 'NR == 2 {printf("%s", $7)}' | sed 's/Gi//') gb"
     else
-        [[ $1 == "ram_used" ]] && ram="$(rstrip "$(free -h | awk 'NR == 2 {printf("%s", $3)}')" "Gi") gb"  || ram="$(rstrip "$(free -h | awk 'NR == 2 {printf("%s", $2)}')" "Gi") gb"
+        [[ $1 == "ram_used" ]] && ram="$(free -h | awk 'NR == 2 {printf("%s", $3)}' | sed 's/Gi//') gb"  || ram="$(free -h | awk 'NR == 2 {printf("%s", $2)}' | sed 's/Gi//') gb"
     fi
 }
 
@@ -114,9 +114,12 @@ get_resolution() { # screen resolution
     read -r display <<< "$(xrandr --current | grep ' connected' | grep -o '[0-9]\+x[0-9]\+')"
 }
 
-get_kernel() { # The kernel
+get_kernel() {
     read -r k_ver k_type <<< "$(uname -r | sed 's/-/\ /g')"
-    k_type="$(echo $(echo $k_type | sed 's/[0-9]/\ /g') | sed -e 's/\b\([a-z]\+\)[ ,\n]\1/\1/g')"
+    k_ver=${k_ver%%-*} # Remove everything after first -
+    k_type=$(echo "$k_type" | sed -e 's/[0-9]/ /g' -e 's/\s\+/ /g') # Remove all numbers and extra spaces
+    k_type=$(echo "$k_type" | sed 's/\b\([[:alpha:]]\+\)[[:space:]]\+\1\b/\1/g')
+    kern="$(uname --kernel-name) $k_ver - $k_type"
 }
 
 get_uptime() {
@@ -191,5 +194,26 @@ get_gpu() { # Get Graphics Card
 }
 
 get_term_size() {
+    
     read -r term_height term_width <<< "$(stty size)"
+}
+
+get_shell() {
+    shell_boi="$(ps -p $$ -o args= | awk '{print $1}')"
+    shell="$(basename "$shell_boi")"
+}
+
+get_cpu() {
+    # Get CPU name
+    name=$(grep "model name" /proc/cpuinfo | awk -F ': ' '{print $2}' | uniq)
+    # Clean CPU name
+    name=$(echo $name | sed 's/(R)//g; s/Core(TM)//g; s/ @ / /g; s/CPU//g; s/[[:space:]]\+/ /g; s/^ *//; s/ *$//')
+    # Get number of CPU cores
+    cores=$(grep -c '^processor' /proc/cpuinfo)
+    # Get CPU frequency
+    # freq=$(grep "cpu MHz" /proc/cpuinfo | awk -F ': ' '{print $2}' | head -1)
+    # Clean CPU frequency
+    # freq=$(echo "scale=3; $freq/1000" | bc | sed 's/0*$//; s/\.$//')
+    # Format output string
+    cpu="$name ($cores)"
 }
