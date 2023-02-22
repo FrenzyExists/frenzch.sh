@@ -1,7 +1,16 @@
 #!/bin/bash
 
+#######################################################
+# Change these to specify to what group would go what #
+#######################################################
+
 # hardware_name=('device' 'ram' 'display' 'cpu' 'cores' 'gpu')
 # software_name=('wm' 'bar' 'editor' 'de' 'kern' 'shell' 'term' )
 
-args=("os" "us" "wm" "ram" "device" "kern" "shell" "cpu" "bar" "editor" "display" )
+#################################################
+# Use these to enable what info you want to see #
+#################################################
+
+# args=("os" "us" "term" "wm" "gpu" "ram" "device" "kern" "shell" "cpu" "bar" "editor" "display" )
+args=("os" "us" "term" "wm" "ram" "device"  "shell" "cpu" "bar" "display" )
 order=( "software" "hardware" )

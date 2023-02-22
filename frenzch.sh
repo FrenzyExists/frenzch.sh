@@ -60,9 +60,9 @@ fetch_idk() {
     get_term_size 
     padding=$(( (term_width-1)/2))
     clear
-    [[ $term_height -ge 34 ]] && [[ $term_width -ge 130 ]] && big_fetch &&  exit 1
-    [[ $term_height -ge 26 ]] && [[ $term_width -ge 47 ]] && medium_fetch && exit 1
-    [[ $term_height -ge 15 ]] && [[ $term_width -ge 42 ]] && small_fetch && exit 1
+    [[ $term_height -ge 34 ]] && [[ $term_width -ge 130 ]] && big_fetch &&  exit 
+    [[ $term_height -ge 26 ]] && [[ $term_width -ge 47 ]] && medium_fetch && exit 
+    [[ $term_height -ge 15 ]] && [[ $term_width -ge 42 ]] && small_fetch && exit 
     [[ $term_height -ge 14 ]] && [[ $term_width -ge 30 ]] && extra_small_fetch || printf "Please make the terminal window larger!"
 }
 
@@ -87,6 +87,10 @@ info_shit() {
         editor)
             software_name[${#software_name[@]}]="$i"
             get_editor
+            ;;
+        term)
+            software_name[${#software_name[@]}]="$i"
+            get_terminal
             ;;
         panel|bar)
             get_panel

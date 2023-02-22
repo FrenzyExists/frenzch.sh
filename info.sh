@@ -30,13 +30,9 @@ get_wm() { # Get Window Manager
                         else
                                 # taken from neofetch
                                 uid=$(xprop -root -notype _NET_SUPPORTING_WM_CHECK)
-                                #uid=${uid##*}
                                 uid=$(echo $uid | grep -o '0x[0-9a-f]\+')
                                 wm=$(xprop -id "$uid" -notype -len 100 -f _NET_WM_NAME 8t)
-                                wm=$(echo $wm | grep -o '_NET_WM_NAME = \"[A-Za-z]\+"' | awk '{print $3}' | awk 'gsub(/"/, "", $0)')
-                                #wm=$(echo $wm | grep WM_CLASS | awk '{print $4}')
-                                #wm=${wm##*WM_NAME=\"}
-                                #wm=${wm%%\"*}
+                                wm=$(echo $wm | grep -o '_NET_WM_NAME = "[A-Za-z]\+"' | awk '{print $3}' | awk 'gsub(/"/, "", $0)')
                         fi
                         ;;
                 "Darwin")
@@ -173,8 +169,8 @@ get_gpu() { # Get Graphics Card
     OS=$(uname -s)
     case $OS in
       Linux)
-        lspci > $HOME/Desktop/weeeee
-        get_line_content "$HOME/Desktop/weeeee" "VGA"
+        lspci > "/tmp/getgpu"
+        get_line_content "/tmp/getgpu" "VGA"
         case $line_content in
           *"NVIDIA"*)
             IFS=[
@@ -183,6 +179,17 @@ get_gpu() { # Get Graphics Card
             IFS=]
             set -- $gpu
             gpu="NVIDIA $1"
+            IFS=" ";;
+        *"Intel"*)
+            IFS=:
+            set -- $line_content
+            gpu=$3
+            gpu="${gpu/*Intel/Intel}"
+            gpu="${gpu/\(R\)}"
+            gpu="${gpu/Corporation }"
+            gpu="${gpu/ \(*}"
+            gpu="${gpu/Integrated Graphics Controller}"
+            gpu="${gpu/*Xeon*/Intel HD Graphics}"
             IFS=" ";;
           *)
             IFS=:
@@ -195,10 +202,13 @@ get_gpu() { # Get Graphics Card
         IFS=":"
         set -- $gpu
         gpu=$2
+        
         IFS=" ";;
     esac
 }
 
+# get_gpu
+echo "$gpu"
 get_term_size() {
     
     read -r term_height term_width <<< "$(stty size)"
@@ -222,4 +232,11 @@ get_cpu() {
     # freq=$(echo "scale=3; $freq/1000" | bc | sed 's/0*$//; s/\.$//')
     # Format output string
     cpu="$name ($cores)"
+}
+
+get_terminal() {
+    term="$TERM_PROGRAM"
+    if [[ -z "$term" ]] ; then
+        term="$TERM"
+    fi
 }
